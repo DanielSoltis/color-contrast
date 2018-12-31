@@ -28,6 +28,13 @@ h1{
     font-weight:500;
 }
 
+h2{
+    margin:40px;
+    font-size:1.5em;
+    font-weight:500;
+    text-align: center;
+}
+
 table, tr, td{
     margin:0px;
     padding:0px;
@@ -45,7 +52,7 @@ table, tr, td{
     border:none;
 }
 
-.load-save-button{
+.load-button{
     width:120px;
     height:30px;
     display:inline-block;
@@ -54,22 +61,158 @@ table, tr, td{
     line-height:30px;
     background-color: #5f5f5f;
     color:#efefef;
-
+    cursor:default;
 }
 
-#load-ase-button{
+.load-button:hover{
+    opacity:0.8;
 }
 
-#load-csv-button{
+.save-button{
+    width:120px;
+    height:30px;
+    display:inline-block;
+    vertical-align: middle;
+    text-align: center;
+    line-height:30px;
+    background-color: #7b7b7b;
+    color:#efefef;
+    cursor:default;
+}
+
+.save-button:hover{
+    opacity:0.8;
 }
 
 #save-ase-button{
     opacity: 0.2;
-    background-color: #7b7b7b;
 }
 
-#save-csv-button{
-    background-color: #7b7b7b;
+/*MODAL WINDOWS*/
+#transparency{
+    background-color:#000000;
+    opacity:0.5;
+    position:fixed;
+    top:0px;
+    left:0px;
+    width:100%;
+    height:100%;
+    z-index:98;
+    visibility:hidden;
+}
+
+.cancel-button{
+    width:100px;
+    height:30px;
+    display:inline-block;
+    vertical-align: middle;
+    text-align: center;
+    line-height:30px;
+    background-color: #d7d7d7;
+    color:#5f5f5f;
+    cursor:default;
+}
+
+.confirm-button{
+    width:140px;
+    height:30px;
+    display:inline-block;
+    vertical-align: middle;
+    text-align: center;
+    line-height:30px;
+    background-color: #5f5f5f;
+    color:#efefef;
+    cursor:default; 
+}
+
+/*ADDING COLOR */
+#add-color-button{
+    text-align:center;
+    line-height:50px;
+    height:50px;
+    width:110px;
+    color:#1e1e1e;
+    cursor:default;
+    background-color:#bdbdbd;
+}
+
+#add-color-button:hover{
+    opacity:0.8;
+}
+
+#add-color-modal{
+    background-color:#efefef;
+    position:fixed;
+    top:60px;
+    left:50%;
+    width:500px;
+    height:425px;
+    margin-left:-250px;
+    visibility:hidden;
+    z-index:99;
+}
+
+#color-display{
+    width:260px;
+    height:100px;
+    position:absolute;
+    left:50%;
+    top:215px;
+    margin-left:-130px;
+    background-color:#7f7f7f;
+}
+
+#rgb-container{
+    position:absolute;
+    left:50%;
+    margin-left:-130px;
+    top:105px;
+}
+
+.rgb-entry-form{
+    display:inline-block;
+    text-align:center;
+    margin: 0px 0px;
+}
+
+.rgb-input{
+    width:40px;
+    padding:3px 5px;
+    font-size:0.9em;
+    margin-left:3px;
+    margin-right: 10px;
+}
+
+#hex-container{
+    position:absolute;
+    left:50%;
+    margin-left:-130px;
+    top:150px;
+}
+
+.hex-entry-form{
+    display:inline-block;
+    text-align:center;
+}
+
+.hex-input{
+    width:70px;
+    padding:3px 5px;
+    font-size:0.9em;
+}
+
+#add-color-cancel-button{
+    position:absolute;
+    top:355px;
+    left:50%;
+    margin-left:-130px;
+}
+
+#add-color-confirm-button{
+    position:absolute;
+    top:355px;
+    left:50%;
+    margin-left:-10px;
 }
 
 /*PALETTE TABLE*/
@@ -80,36 +223,18 @@ table, tr, td{
     margin:10px;
 }
 
-
-#palette-table{
-
-}
-
-#add-color{
-    text-align:center;
-    line-height:50px;
-    height:50px;
-    width:110px;
-    color:black;
-    cursor:default;
-    background-color:rgb(220,220,220);
-}
-#add-color:hover{
-    background-color:rgb(200,200,200);
-    color:white;
-}
-
 .top-label-td{
     width:100px;
     height:40px;
     padding:5px;
+    cursor:default;
 }
 
 .top-label-data{
     width:80px;
     height:20px;
-    background-color: white;
-    color:black;
+    background-color: #fafafa;
+    color:#1e1e1e;
     display: inline-block;
     text-align: center;
     line-height: 20px;
@@ -117,17 +242,22 @@ table, tr, td{
     font-size:0.75em;
 }
 
+.top-label-data:hover{
+    opacity:0.8;
+}
+
 .side-label-td{
     width:60px;
     height:80px;
     padding:5px;
+    cursor:default;
 }
 
 .side-label-data{
     width:80px;
     height:20px;
-    background-color: white;
-    color:black;
+    background-color: #fafafa;
+    color:#1e1e1e;
     display: inline-block;
     text-align: center;
     line-height: 20px;
@@ -135,6 +265,10 @@ table, tr, td{
     border-top:30px solid;
     border-bottom: 30px solid;
     font-size:0.75em;
+}
+
+.side-label-data:hover{
+    opacity:0.8;
 }
 
 .grid-item{

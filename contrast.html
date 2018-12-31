@@ -12,32 +12,67 @@
     
     <body>
         
-        <h1>Color Palette Contrast Tester</h1>
+        <!-- MODAL WINDOWS -->
+        <div id = "add-color-modal">
+            
+            <h2>Add a color</h2>
+            
+            <div id = "rgb-container">
+                <div class="rgb-entry-form">
+                    R
+                    <input class="rgb-input" type="number" id="red" placeholder = "127">
+                </div>
+                <div class="rgb-entry-form">
+                    G
+                    <input class="rgb-input" type="number" id="green" placeholder = "127">
+                </div>
+                <div class="rgb-entry-form">
+                    B
+                    <input class="rgb-input" type="number" id="blue" placeholder = "127">
+                </div>
+            </div>
+            
+            <div id = "hex-container">
+                <div class="hex-entry-form">
+                    Hex #
+                    <input class="hex-input" type="text" id="hex" placeholder = "7F7F7F">
+                </div>
+            </div>
+            
+            <div id = "color-display"></div>
+            
+            <div id = "add-color-cancel-button" class = "cancel-button">Cancel</div>
+            
+            <div id = "add-color-confirm-button" class = "confirm-button">Add color</div>
+        </div>
         
-
+        <div id = "transparency"></div>
+        
+        <!-- TABLE -->
+        <h1>Color Palette Contrast Tester</h1>
         
         <table id="buttons-container">
             <tr>
                 <td class = "buttons-td">
-                    <div id = "load-ase-button" class = "load-save-button">
+                    <div id = "load-ase-button" class = "load-button">
                         Load ASE
                     </div>
                 </td>
 
                 <td class = "buttons-td">
-                    <div id = "load-csv-button" class = "load-save-button">
+                    <div id = "load-csv-button" class = "load-button">
                         Load CSV
                     </div>
                 </td>
 
                 <td class = "buttons-td">
-                    <div id = "save-ase-button"  class = "load-save-button"  >
+                    <div id = "save-ase-button"  class = "save-button"  >
                         Save as ASE
                     </div>
                 </td>
 
                 <td class = "buttons-td">
-                    <div id = "save-csv-button" class = "load-save-button">
+                    <div id = "save-csv-button" class = "save-button">
                         Save as CSV
                     </div>
                 </td>
