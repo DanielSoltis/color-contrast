@@ -1,0 +1,152 @@
+/*
+#fafafa;
+#efefef;
+#d7d7d7;
+#bdbdbd;
+#a3a3a3;
+#8f8f8f;
+#7b7b7b;
+#747474;
+#696969;
+#5f5f5f;
+#4e4e4e;
+#1e1e1e;
+*/
+
+
+body, p{
+    margin:0px;
+    padding:0px;
+    font-family: sans-serif;
+    background-color:#efefef;
+    color:#1e1e1e;
+}
+
+h1{
+    margin:20px 10px 10px 10px;
+    font-size:1.5em;
+    font-weight:500;
+}
+
+table, tr, td{
+    margin:0px;
+    padding:0px;
+    border:none;
+}
+
+/*LOAD AND SAVE BUTTONS*/
+#buttons-container{
+    margin-left: 10px;
+}
+
+.buttons-td{
+    padding:10px;
+    margin:0px;
+    border:none;
+}
+
+.load-save-button{
+    width:120px;
+    height:30px;
+    display:inline-block;
+    vertical-align: middle;
+    text-align: center;
+    line-height:30px;
+    background-color: #5f5f5f;
+    color:#efefef;
+
+}
+
+#load-ase-button{
+}
+
+#load-csv-button{
+}
+
+#save-ase-button{
+    opacity: 0.2;
+    background-color: #7b7b7b;
+}
+
+#save-csv-button{
+    background-color: #7b7b7b;
+}
+
+/*PALETTE TABLE*/
+#palette-container{
+    clear:both;
+    background-color:#fafafa;
+    padding:5px;
+    margin:10px;
+}
+
+
+#palette-table{
+
+}
+
+#add-color{
+    text-align:center;
+    line-height:50px;
+    height:50px;
+    width:110px;
+    color:black;
+    cursor:default;
+    background-color:rgb(220,220,220);
+}
+#add-color:hover{
+    background-color:rgb(200,200,200);
+    color:white;
+}
+
+.top-label-td{
+    width:100px;
+    height:40px;
+    padding:5px;
+}
+
+.top-label-data{
+    width:80px;
+    height:20px;
+    background-color: white;
+    color:black;
+    display: inline-block;
+    text-align: center;
+    line-height: 20px;
+    border: 10px solid;
+    font-size:0.75em;
+}
+
+.side-label-td{
+    width:60px;
+    height:80px;
+    padding:5px;
+}
+
+.side-label-data{
+    width:80px;
+    height:20px;
+    background-color: white;
+    color:black;
+    display: inline-block;
+    text-align: center;
+    line-height: 20px;
+    border: 10px solid;
+    border-top:30px solid;
+    border-bottom: 30px solid;
+    font-size:0.75em;
+}
+
+.grid-item{
+    width:100px;
+    height:80px;
+    padding:5px;
+}
+
+.grid-data{
+    width:100px;
+    height:80px;
+    display: inline-block;
+    text-align: center;
+    line-height: 80px;
+}
