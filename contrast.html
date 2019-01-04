@@ -1,3 +1,9 @@
+
+<!--
+Add: close button on modal windows
+Clear all button on the table UI
+-->
+
 <!DOCTYPE html>
 
 <html lang = "en">
@@ -13,39 +19,71 @@
     <body>
         
         <!-- MODAL WINDOWS -->
-        <div id = "add-color-modal">
+        <div id = "add-color-modal" class = "modal-window">
             
-            <h2>Add a color</h2>
+            <div class = "modal-label">Add a color</div>
             
-            <div id = "rgb-container">
-                <div class="rgb-entry-form">
-                    R
-                    <input class="rgb-input" type="number" id="red" placeholder = "127">
+            <div id = "add-color-controls-container">
+                <div id = "rgb-container">
+                    <div class="rgb-entry-form">
+                        R
+                        <input class="rgb-input" type="number" id="red" placeholder = "127">
+                    </div>
+                    <div class="rgb-entry-form">
+                        G
+                        <input class="rgb-input" type="number" id="green" placeholder = "127">
+                    </div>
+                    <div class="rgb-entry-form">
+                        B
+                        <input class="rgb-input" type="number" id="blue" placeholder = "127">
+                    </div>
                 </div>
-                <div class="rgb-entry-form">
-                    G
-                    <input class="rgb-input" type="number" id="green" placeholder = "127">
+
+                <div id = "hex-container">
+                    <div class="hex-entry-form">
+                        Hex #
+                        <input class="hex-input" type="text" id="hex" placeholder = "7F7F7F">
+                    </div>
                 </div>
-                <div class="rgb-entry-form">
-                    B
-                    <input class="rgb-input" type="number" id="blue" placeholder = "127">
-                </div>
+
+                <div id = "color-display"></div>
+
+                <div id = "add-color-cancel-button" class = "cancel-button">Cancel</div>
+
+                <div id = "add-color-confirm-button" class = "confirm-button">Add color</div>
             </div>
-            
-            <div id = "hex-container">
-                <div class="hex-entry-form">
-                    Hex #
-                    <input class="hex-input" type="text" id="hex" placeholder = "7F7F7F">
-                </div>
-            </div>
-            
-            <div id = "color-display"></div>
-            
-            <div id = "add-color-cancel-button" class = "cancel-button">Cancel</div>
-            
-            <div id = "add-color-confirm-button" class = "confirm-button">Add color</div>
         </div>
         
+        <div id = "modify-color-modal" class = "modal-window">
+            
+            <div class = "modal-label">Change color</div>
+            
+            <table id = "selected-color-grid"></table>
+            
+            <div id = "modify-controls-container">
+            
+                <div id = "modify-color-display"></div>
+
+                <div id = "darker-button" class = "modify-color-button">
+                    <div id = "left-arrow-label">Darker</div>
+                </div>
+
+                <div id = "lighter-button" class = "modify-color-button">
+                    <div id = "right-arrow-label">Lighter</div>
+                </div>
+
+                <div id = "modify-color-cancel-button" class = "cancel-button">Cancel</div>
+
+                <div id = "modify-color-confirm-button" class = "confirm-button">Update color</div>
+
+                <div id = "delete-color-button">Remove this color</div>
+                
+                <p id = "instructions">Hold down the shift key to darken or lighten in bigger steps.</p>
+            
+            </div>
+                
+        </div>
+
         <div id = "transparency"></div>
         
         <!-- TABLE -->
@@ -54,25 +92,19 @@
         <table id="buttons-container">
             <tr>
                 <td class = "buttons-td">
-                    <div id = "load-ase-button" class = "load-button">
-                        Load ASE
+                    <div id = "load-button" class = "load-save-button">
+                        Load ASE or CSV
                     </div>
                 </td>
 
                 <td class = "buttons-td">
-                    <div id = "load-csv-button" class = "load-button">
-                        Load CSV
-                    </div>
-                </td>
-
-                <td class = "buttons-td">
-                    <div id = "save-ase-button"  class = "save-button"  >
+                    <div id = "save-ase-button"  class = "load-save-button"  >
                         Save as ASE
                     </div>
                 </td>
 
                 <td class = "buttons-td">
-                    <div id = "save-csv-button" class = "save-button">
+                    <div id = "save-csv-button" class = "load-save-button">
                         Save as CSV
                     </div>
                 </td>

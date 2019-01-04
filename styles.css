@@ -20,19 +20,21 @@ body, p{
     font-family: sans-serif;
     background-color:#efefef;
     color:#1e1e1e;
+    
+    /*not sure if this an accessibility issue. keeps you from selecting text when you click on buttons*/
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
 }
 
 h1{
-    margin:20px 10px 10px 10px;
+    margin:20px 10px 10px 20px;
     font-size:1.5em;
     font-weight:500;
-}
-
-h2{
-    margin:40px;
-    font-size:1.5em;
-    font-weight:500;
-    text-align: center;
 }
 
 table, tr, td{
@@ -52,8 +54,9 @@ table, tr, td{
     border:none;
 }
 
-.load-button{
-    width:120px;
+.load-save-button{
+    min-width:100px;
+    padding:0px 10px;
     height:30px;
     display:inline-block;
     vertical-align: middle;
@@ -64,26 +67,11 @@ table, tr, td{
     cursor:default;
 }
 
-.load-button:hover{
+.load-save-button:hover{
     opacity:0.8;
 }
 
-.save-button{
-    width:120px;
-    height:30px;
-    display:inline-block;
-    vertical-align: middle;
-    text-align: center;
-    line-height:30px;
-    background-color: #7b7b7b;
-    color:#efefef;
-    cursor:default;
-}
-
-.save-button:hover{
-    opacity:0.8;
-}
-
+/*disable button, for unimplemented feature*/
 #save-ase-button{
     opacity: 0.2;
 }
@@ -101,6 +89,18 @@ table, tr, td{
     visibility:hidden;
 }
 
+.modal-window{
+    background-color:#efefef;
+    visibility:hidden;
+    z-index:99;
+}
+
+.modal-label{
+    margin:30px 20px;
+    font-size:1.5em;
+    font-weight:500;
+    text-align: left;  
+}
 .cancel-button{
     width:100px;
     height:30px;
@@ -125,6 +125,10 @@ table, tr, td{
     cursor:default; 
 }
 
+.cancel-button:hover, .confirm-button:hover, #lighter-button:hover, #darker-button:hover{
+    opacity:0.8;
+}
+
 /*ADDING COLOR */
 #add-color-button{
     text-align:center;
@@ -141,32 +145,28 @@ table, tr, td{
 }
 
 #add-color-modal{
-    background-color:#efefef;
     position:fixed;
-    top:60px;
-    left:50%;
-    width:500px;
-    height:425px;
-    margin-left:-250px;
-    visibility:hidden;
-    z-index:99;
+    top:20px;
+    left:20px;
+    bottom:20px;
+    right:20px;
+    min-width:280px;
 }
 
-#color-display{
-    width:260px;
-    height:100px;
+#add-color-controls-container{
+    background-color:#fafafa;
+    width:320px;
+    height:330px;
     position:absolute;
-    left:50%;
-    top:215px;
-    margin-left:-130px;
-    background-color:#7f7f7f;
+    top:80px;
+    left:20px;
 }
 
 #rgb-container{
     position:absolute;
     left:50%;
     margin-left:-130px;
-    top:105px;
+    top:30px;
 }
 
 .rgb-entry-form{
@@ -187,7 +187,7 @@ table, tr, td{
     position:absolute;
     left:50%;
     margin-left:-130px;
-    top:150px;
+    top:75px;
 }
 
 .hex-entry-form{
@@ -201,18 +201,169 @@ table, tr, td{
     font-size:0.9em;
 }
 
+#color-display{
+    width:260px;
+    height:100px;
+    position:absolute;
+    left:50%;
+    top:120px;
+    margin-left:-130px;
+    background-color:#7f7f7f;
+}
+
 #add-color-cancel-button{
     position:absolute;
-    top:355px;
+    top:260px;
     left:50%;
     margin-left:-130px;
 }
 
 #add-color-confirm-button{
     position:absolute;
-    top:355px;
+    top:260px;
     left:50%;
     margin-left:-10px;
+}
+
+/*CHANGING COLOR*/
+#modify-color-modal{
+    position:fixed;
+    top:20px;
+    left:20px;
+    bottom:20px;
+    right:20px;
+    min-width:300px;
+    overflow:auto;
+}
+
+#selected-color-grid{
+    position:absolute;
+    top:80px;
+    left:20px;
+    background-color:#fafafa;
+}
+
+#modify-controls-container{
+    background-color:#fafafa;
+    width:300px;
+    height:310px;
+    position:absolute; //make this fixed, but need to adjust everything else
+    top:80px;
+    left:150px;
+}
+
+#modify-color-display{
+    position:absolute;
+    top:30px;
+    left:50%;
+    margin-left:-45px;
+    width:90px;
+    height:90px;
+    background-color:red;
+}
+
+#darker-button{
+    width: 0;
+    height: 0;
+    border-top: 45px solid transparent;
+    border-right: 70px solid #d7d7d7;
+    border-bottom: 45px solid transparent;
+    
+    position:absolute;
+    top:30px;
+    left:50%;
+    margin-left:-125px;
+    
+    background-color:none;
+    cursor:default;
+}
+
+#darker-button:active{
+    border-right: 70px solid #bdbdbd;
+}
+
+#left-arrow-label{
+    width:70px;
+    margin-left:18px;
+    margin-top:-10px;
+    text-align:left;
+    font-size:0.95em;
+    color: #5f5f5f;
+}
+
+#lighter-button{
+    width: 0;
+    height: 0;
+    border-top: 45px solid transparent;
+    border-left: 70px solid #d7d7d7;
+    border-bottom: 45px solid transparent;
+    
+    position:absolute;
+    top:30px;
+    left:50%;
+    margin-left:55px;
+    
+    background-color:none;
+    cursor:default;
+}
+
+#lighter-button:active{
+    border-left: 70px solid #bdbdbd;
+}
+
+#right-arrow-label{
+    width:80px;
+    margin-left:-63px;
+    margin-top:-10px;
+    text-align:left;
+    font-size:0.95em;
+    color: #5f5f5f;
+}
+
+.modify-color-button{
+    color:#efefef;
+    cursor:default;
+}
+
+#modify-color-cancel-button{
+    position:absolute;
+    top:160px;
+    left:50%;
+    margin-left:-125px;
+}
+
+#modify-color-confirm-button{
+    position:absolute;
+    top:160px;
+    left:50%;
+    margin-left:-15px;
+}
+
+#delete-color-button{
+    width:160px;
+    position:absolute;
+    top:220px;
+    left:50%;
+    margin-left:-80px;
+    text-align:center;
+    color: #cc0000;
+    cursor:default;
+    font-size:1.075em;
+}
+
+#delete-color-button:hover{
+    color: #aa0000;
+}
+
+#instructions{
+    position:absolute;
+    top:260px; 
+    left:20px;
+    right:20px;
+    font-size:0.875em;
+    background-color:transparent;
+    color: #1e1e1e;
+    
 }
 
 /*PALETTE TABLE*/
@@ -242,13 +393,9 @@ table, tr, td{
     font-size:0.75em;
 }
 
-.top-label-data:hover{
-    opacity:0.8;
-}
-
 .side-label-td{
     width:60px;
-    height:80px;
+    height:60px;
     padding:5px;
     cursor:default;
 }
@@ -262,25 +409,34 @@ table, tr, td{
     text-align: center;
     line-height: 20px;
     border: 10px solid;
-    border-top:30px solid;
-    border-bottom: 30px solid;
+    border-top:20px solid;
+    border-bottom: 20px solid;
     font-size:0.75em;
 }
 
-.side-label-data:hover{
+.top-label-data:hover, .side-label-data:hover{
     opacity:0.8;
 }
 
 .grid-item{
     width:100px;
-    height:80px;
+    height:60px;
     padding:5px;
 }
 
 .grid-data{
     width:100px;
-    height:80px;
-    display: inline-block;
+    height:60px;
+}
+
+.contrast-rating{
     text-align: center;
-    line-height: 80px;
+    font-size:1.25em; 
+    padding-top:10px;
+}
+     
+.contrast-value{
+    text-align: center;
+    font-size:0.75em;
+    padding-top:5px;
 }
