@@ -1,44 +1,177 @@
+//TODO:
+
+//close 'x' on each modal window
+//interact with a single box to just look at those two colors
+//save as ASE
+
+
+
+
+
+
 (function () {
 
-    /* global window, document */
+    /* global window, document, loadAse */
 
     "use strict";
 
     var
         //GLOBAL VARIABLES
-        colorData, paletteTable, selectedColorIndex, tempColor = [0, 0, 0],
+        colorData = [], //array of all colors being evaluated, in [[r1,g1,b1],[r2,g2,b2],...] format
+        selectedColorIndex, tempColor = [0, 0, 0], //hold information about a color that has been selected to be modified
+        paletteTable, //table that displays the color grid
 
-        //SETUP FUNCTIONS
-        setupModalBehavior, setupColorModal, setupModifyModal, constructTable,
+        //SETUP AND VIEW MANAGEMENT FUNCTIONS
+        setupTransparentOverlayForModals, setupAddColorModal, setupModifyColorModal, setupFileManagement,
+        constructTable, resizeTable, hideModals,
         
         //FUNCTIONS FOR ADDING AND CHANGING COLORS
-        openColorModal,  addColor, openModifyModal, replaceColor, deleteColor, changeColor, updateModifyDisplay,
+        openAddColorModal, addColor,
+        openModifyColorModal, updateModifyDisplay, shiftColorLuminosity, replaceColor, deleteColor,
+          
+        //COLOR TRANSFORMATION FUNCTIONS
+        parseHex, parseRgb, rgbToHex, hexToRgb, RgbToHsl, HslToRgb, hueToRgb, isValidRgb,
+        evaluateLuminosity, evaluateContrast, interpretContrast,
     
-        //UTILITY FUNCTIONS
-        resizeTable, hideModals, parseHex, parseRGB, rgbToHex, hexToRGB, RGBtoHSL, HSLtoRGB, isValidRGB,
-        luminosity, contrast, interpretContrast;
-    
-    colorData = [
-        [0, 0, 0],
-        [180, 80, 80],
-        [127, 67, 255],
-        [255, 255, 255]
-    ];
-
-    //TABLE LAYOUT
-    //When the window loads, create the table filled with the default data
-    window.onload = function () {
+        //FILE MANAGEMENT FUNCTIONS
+        openColorPaletteFile, saveAsCSV, downloadFile, timestamp;
         
-        setupModalBehavior();
-        setupColorModal();
-        setupModifyModal();
+    //When the window is loaded, calls the setup functions and constructs the initial table
+    window.onload = function () {
+        setupTransparentOverlayForModals();
+        setupAddColorModal();
+        setupModifyColorModal();
+        
+        setupFileManagement();
         
         paletteTable = document.getElementById("palette-table");
         constructTable(colorData, paletteTable);
         resizeTable();
     };
+    
+    //If the user resizes the browser window, changes the size of the display to fit the new size
+    window.onresize = function () {
+        resizeTable();
+    };
 
-    //given an array colorData with r,g,b values for each color, lay out the table
+    //SETUP AND VIEW MANAGEMENT FUNCTIONS
+
+    //sets up the transparent overlay that appears behind every modal window
+    setupTransparentOverlayForModals = function () {
+        var transparency = document.getElementById("transparency");
+        transparency.onclick = function () {
+            hideModals();
+        };
+    };
+
+    //sets up the behaviors for the elements in the Add Color modal
+    setupAddColorModal = function () {
+        var hexInput = document.getElementById("hex"),
+            redInput = document.getElementById("red"),
+            greenInput = document.getElementById("green"),
+            blueInput = document.getElementById("blue"),
+            colorDisplay = document.getElementById("color-display"),
+            cancelButton = document.getElementById("add-color-cancel-button"),
+            confirmButton = document.getElementById("add-color-confirm-button");
+        
+        //this is repetitive. is there a more elegant way to do this?
+        
+        //event listeners for changes to the hex value
+        hexInput.onchange = function () {
+            parseHex(hexInput, redInput, greenInput, blueInput, colorDisplay);
+        };
+        hexInput.onkeydown = function () { //this gets rid of the red 'error' color from invalid inputs
+            hexInput.style.color = "#1e1e1e";
+        };
+        
+        //event listeners for changes to the rgb value
+        redInput.onchange = function () {
+            parseRgb(hexInput, redInput, greenInput, blueInput, colorDisplay);
+        };
+        redInput.onkeydown = function () {
+            redInput.style.color = "#1e1e1e";
+        };
+        
+        greenInput.onchange = function () {
+            parseRgb(hexInput, redInput, greenInput, blueInput, colorDisplay);
+        };
+        greenInput.onkeydown = function () {
+            greenInput.style.color = "#1e1e1e";
+        };
+        
+        blueInput.onchange = function () {
+            parseRgb(hexInput, redInput, greenInput, blueInput, colorDisplay);
+        };
+        blueInput.onkeydown = function () {
+            blueInput.style.color = "#1e1e1e";
+        };
+        
+        //cancel button closes the window without changing any data
+        cancelButton.onclick = function () {
+            hideModals();
+        };
+        
+        //confirm button adds the new color to the table
+        confirmButton.onclick = function () {
+            addColor(redInput.value, greenInput.value, blueInput.value);
+            hideModals();
+        };
+    };
+    
+    //sets up the behaviors for the elements in the Modify Color modal
+    setupModifyColorModal = function () {
+        var darkerButton = document.getElementById("darker-button"),
+            lighterButton = document.getElementById("lighter-button"),
+            cancelButton = document.getElementById("modify-color-cancel-button"),
+            confirmButton = document.getElementById("modify-color-confirm-button"),
+            deleteButton = document.getElementById("delete-color-button");
+        
+        darkerButton.onclick = function (e) {
+            if (e.shiftKey) {
+                tempColor = shiftColorLuminosity(tempColor, 0.02, -1);
+            } else {
+                tempColor = shiftColorLuminosity(tempColor, 0.001, -1);
+            }
+            updateModifyDisplay(tempColor);
+        };
+        
+        lighterButton.onclick = function (e) {
+            if (e.shiftKey) {
+                tempColor = shiftColorLuminosity(tempColor, 0.02, 1);
+            } else {
+                tempColor = shiftColorLuminosity(tempColor, 0.001, 1);
+            }
+            updateModifyDisplay(tempColor);
+        };
+        
+        cancelButton.onclick = function () {
+            hideModals();
+        };
+
+        confirmButton.onclick = function () {
+            replaceColor(tempColor, selectedColorIndex);
+            hideModals();
+        };
+        
+        deleteButton.onclick = function () {
+            var response = window.confirm("Delete this color?");
+            if (response === true) {
+                deleteColor(selectedColorIndex);
+                hideModals();
+            }
+        };
+    };
+    
+    //adds event listeners for the buttons for loading and saving files
+    setupFileManagement = function () {
+        document.getElementById("load-file-input").addEventListener("change", openColorPaletteFile, false);
+        document.getElementById("save-csv-button").addEventListener("click", function () {
+            saveAsCSV(colorData);
+        }, false);
+    };
+    
+    //given an array colorData with [r,g,b] values for each color and an HTML table container paletteTable,
+    //lays out the table that presents the colors and their contrasts
     constructTable = function (colorData, paletteTable) {
 
         paletteTable.innerHTML = "";
@@ -53,7 +186,7 @@
         addColorButton.id = "add-color-button";
         addColorButton.innerHTML = "Add color";
         addColorButton.onclick = function () {
-            openColorModal();
+            openAddColorModal();
         };
         labelRow.appendChild(addColorButton);
 
@@ -64,7 +197,7 @@
             topLabel.className = "top-label-td";
             topLabel.onclick = function () {
                 selectedColorIndex = i;
-                openModifyModal(colorData, selectedColorIndex, 0);
+                openModifyColorModal(colorData, selectedColorIndex, 0);
             };
             labelRow.appendChild(topLabel);
 
@@ -87,7 +220,7 @@
             sideLabel.className = "side-label-td";
             sideLabel.onclick = function () {
                 selectedColorIndex = i;
-                openModifyModal(colorData, selectedColorIndex, 1);
+                openModifyColorModal(colorData, selectedColorIndex, 1);
             };
             gridRow.appendChild(sideLabel);
 
@@ -96,7 +229,7 @@
             sideLabelData.innerHTML = labelColor[0] + ", " + labelColor[1] + ", " + labelColor[2];
             sideLabel.appendChild(sideLabelData);
 
-            //do all the colors, another loop
+            //all the colors in the row, another loop
             colorData.forEach(function (gridColor) {
                 var gridItem = document.createElement("TD"),
                     gridData = document.createElement("DIV"),
@@ -113,25 +246,24 @@
 
                 if (labelColor !== gridColor) {
                     contrastRating.className = "contrast-rating";
-                    contrastRating.innerHTML = interpretContrast(contrast(gridColor, labelColor));
+                    contrastRating.innerHTML = interpretContrast(evaluateContrast(gridColor, labelColor));
                     gridData.appendChild(contrastRating);
                     contrastValue.className = "contrast-value";
-                    contrastValue.innerHTML = contrast(gridColor, labelColor).toFixed(2);
+                    contrastValue.innerHTML = evaluateContrast(gridColor, labelColor).toFixed(2);
                     gridData.appendChild(contrastValue);
                 }
             });
         });
     };
-
-    //MODAL WINDOWS
     
-    setupModalBehavior = function () {
-        var transparency = document.getElementById("transparency");
-        transparency.onclick = function () {
-            hideModals();
-        };
+    //sets the size of the div containing the table to fit the table contents or fill the browser window, whichever is larger
+    resizeTable = function () {
+        var paletteContainer = document.getElementById("palette-container");
+        paletteContainer.style.width = Math.max(paletteTable.clientWidth, document.documentElement.clientWidth - 30) + "px";
+        paletteContainer.style.height = Math.max(paletteTable.clientHeight, document.documentElement.clientHeight  - 150) + "px";
     };
 
+    //closes any modal window
     hideModals = function () {
         var transparency = document.getElementById("transparency"),
             modals = document.getElementsByClassName("modal-window");
@@ -142,101 +274,11 @@
         });
     };
     
-    setupColorModal = function () {
-        var hexInput = document.getElementById("hex"),
-            redInput = document.getElementById("red"),
-            greenInput = document.getElementById("green"),
-            blueInput = document.getElementById("blue"),
-            colorDisplay = document.getElementById("color-display"),
-            cancelButton = document.getElementById("add-color-cancel-button"),
-            confirmButton = document.getElementById("add-color-confirm-button");
-        
-        //this is repetitive. should find a more elegant way to do this
-        //event listeners for changes to the hex value
-        hexInput.onchange = function () {
-            parseHex(hexInput, redInput, greenInput, blueInput, colorDisplay);
-        };
-        hexInput.onkeydown = function () {
-            hexInput.style.color = "#1e1e1e";
-        };
-        
-         //event listeners for changes to the rgb value
-        redInput.onchange = function () {
-            parseRGB(hexInput, redInput, greenInput, blueInput, colorDisplay);
-        };
-        redInput.onkeydown = function () {
-            redInput.style.color = "#1e1e1e";
-        };
-        
-        greenInput.onchange = function () {
-            parseRGB(hexInput, redInput, greenInput, blueInput, colorDisplay);
-        };
-        greenInput.onkeydown = function () {
-            greenInput.style.color = "#1e1e1e";
-        };
-        
-        blueInput.onchange = function () {
-            parseRGB(hexInput, redInput, greenInput, blueInput, colorDisplay);
-        };
-        blueInput.onkeydown = function () {
-            blueInput.style.color = "#1e1e1e";
-        };
-        
-        //cancel button just closes the window
-        cancelButton.onclick = function () {
-            hideModals();
-        };
-        
-        //confirm button adds the color to the table
-        confirmButton.onclick = function () {
-            addColor(redInput.value, greenInput.value, blueInput.value);
-        };
-    };
     
-    setupModifyModal = function () {
-        var darkerButton = document.getElementById("darker-button"),
-            lighterButton = document.getElementById("lighter-button"),
-            cancelButton = document.getElementById("modify-color-cancel-button"),
-            confirmButton = document.getElementById("modify-color-confirm-button"),
-            deleteButton = document.getElementById("delete-color-button");
-        
-        darkerButton.onclick = function (e) {
-            if (e.shiftKey) {
-                tempColor = changeColor(tempColor, 0.02, -1);
-            } else {
-                tempColor = changeColor(tempColor, 0.001, -1);
-            }
-            updateModifyDisplay(tempColor);
-        };
-        
-        lighterButton.onclick = function (e) {
-            if (e.shiftKey) {
-                tempColor = changeColor(tempColor, 0.02, 1);
-            } else {
-                tempColor = changeColor(tempColor, 0.001, 1);
-            }
-            updateModifyDisplay(tempColor);
-        };
-        
-        cancelButton.onclick = function () {
-            hideModals();
-        };
-
-        confirmButton.onclick = function () {
-            replaceColor(tempColor, selectedColorIndex);
-            hideModals();
-        };
-        
-        deleteButton.onclick = function () {
-            var response = window.confirm("Delete this color?");
-            if (response === true) {
-                deleteColor(selectedColorIndex);
-            }
-        };
-    };
+    //FUNCTIONS FOR ADDING AND CHANGING COLORS
     
-    //ADD NEW COLORS
-    openColorModal = function () {
+    //opens the modal window that allows a user to add a new color
+    openAddColorModal = function () {
         var addColorModal = document.getElementById("add-color-modal"),
             transparency = document.getElementById("transparency");
          
@@ -244,16 +286,16 @@
         addColorModal.style.visibility = "visible";
     };
     
+    //given r, g, and b values (shoud be integer 0-255), adds a color to colorData and updates the table
     addColor = function (r, g, b) {
-        if ((isValidRGB(r) && isValidRGB(g) && isValidRGB(b))) {
+        if ((isValidRgb(r) && isValidRgb(g) && isValidRgb(b))) {
             colorData.unshift([r, g, b]);
             constructTable(colorData, paletteTable);
-            hideModals();
         }
     };
     
-    //MODIFY EXISTING COLORS
-    openModifyModal = function (colorData, colorIndex, topOrSide) {
+    //opens the modal window that allows a user to modify or remove an existing color
+    openModifyColorModal = function (colorData, colorIndex, topOrSide) {
         var modifyColorModal = document.getElementById("modify-color-modal"),
             transparency = document.getElementById("transparency"),
             selectedColorGrid = document.getElementById("selected-color-grid"),
@@ -276,8 +318,8 @@
             //if the clicked color was on the top, make a vertical column of the selected color and all the other colors
             
             //position the controls container to the right of the column.
-            modifyControlsContainer.style.left = "150px";
-            modifyControlsContainer.style.top = "80px";
+            modifyControlsContainer.style.left = "170px";
+            modifyControlsContainer.style.top = "100px";
             selectedColorGrid.className = "top"; //this is a hack so I can see which version of the grid I am using later
             
             //make the label
@@ -311,10 +353,10 @@
                     gridItem.appendChild(gridData);
                     
                     contrastRating.className = "contrast-rating";
-                    contrastRating.innerHTML = interpretContrast(contrast(color, selectedColor));
+                    contrastRating.innerHTML = interpretContrast(evaluateContrast(color, selectedColor));
                     gridData.appendChild(contrastRating);
                     contrastValue.className = "contrast-value";
-                    contrastValue.innerHTML = contrast(color, selectedColor).toFixed(2);
+                    contrastValue.innerHTML = evaluateContrast(color, selectedColor).toFixed(2);
                     gridData.appendChild(contrastValue);
                 }
             });
@@ -324,8 +366,8 @@
             //if the clicked color was on the side, make a horizontal row of the selected color and all the other colors
             
             //position the controls container below a horizontal row and to the left
-            modifyControlsContainer.style.left = "20px";
-            modifyControlsContainer.style.top = "160px";
+            modifyControlsContainer.style.left = "40px";
+            modifyControlsContainer.style.top = "190px";
             selectedColorGrid.className = "side";
             
             //make the label
@@ -356,47 +398,16 @@
                     gridItem.appendChild(gridData);
                     
                     contrastRating.className = "contrast-rating";
-                    contrastRating.innerHTML = interpretContrast(contrast(color, selectedColor));
+                    contrastRating.innerHTML = interpretContrast(evaluateContrast(color, selectedColor));
                     gridData.appendChild(contrastRating);
                     contrastValue.className = "contrast-value";
-                    contrastValue.innerHTML = contrast(color, selectedColor).toFixed(2);
+                    contrastValue.innerHTML = evaluateContrast(color, selectedColor).toFixed(2);
                     gridData.appendChild(contrastValue);
                 }
             });
         }
     };
-    
-    //takes a color as RGB array, step size (between 0 and 1) and direction (-1 or 1) and returns a color with a lighter or darker luminosity 
-    changeColor = function (color, step, direction) {
-        var tempHSL, newRGB, roundedRGB;
-        
-        tempHSL = new RGBtoHSL(color[0], color[1], color[2]);
-        tempHSL[2] = Math.min(1, Math.max(0, tempHSL[2] + direction * step));
-        
-        newRGB = new HSLtoRGB(tempHSL[0], tempHSL[1], tempHSL[2]);
-        roundedRGB = [Math.round(newRGB[0]), Math.round(newRGB[1]), Math.round(newRGB[2])];
 
-       //if the step size is small, this makes sure that the RGB value changes by at least 1
-        while (color.toString() === roundedRGB.toString() && roundedRGB.toString() !== "0,0,0" && roundedRGB.toString() !== "255,255,255") {
-            tempHSL[2] = Math.min(1, Math.max(0, tempHSL[2] + direction * step));
-            newRGB = new HSLtoRGB(tempHSL[0], tempHSL[1], tempHSL[2]);
-            roundedRGB = [Math.round(newRGB[0]), Math.round(newRGB[1]), Math.round(newRGB[2])];
-        }
-        return roundedRGB;
-    };
-    
-    replaceColor = function (color, colorIndex) {
-        colorData.splice(colorIndex, 1, color);
-        constructTable(colorData, paletteTable);
-        hideModals();
-    };
-    
-    deleteColor = function (colorIndex) {
-        colorData.splice(colorIndex, 1);
-        constructTable(colorData, paletteTable);
-        hideModals();
-    };
-    
     updateModifyDisplay = function () {
         var selectedColorGrid = document.getElementById("selected-color-grid"),
             modifyColorDisplay = document.getElementById("modify-color-display"),
@@ -425,9 +436,9 @@
                     otherColor[i] = parseInt(component, 10);
                 });
                 
-                gridData.getElementsByClassName("contrast-rating")[0].innerHTML = interpretContrast(contrast(tempColor, otherColor));
+                gridData.getElementsByClassName("contrast-rating")[0].innerHTML = interpretContrast(evaluateContrast(tempColor, otherColor));
                 
-                gridData.getElementsByClassName("contrast-value")[0].innerHTML = contrast(tempColor, otherColor).toFixed(2);
+                gridData.getElementsByClassName("contrast-value")[0].innerHTML = evaluateContrast(tempColor, otherColor).toFixed(2);
                 
             });
             
@@ -450,18 +461,50 @@
                     otherColor[i] = parseInt(component, 10);
                 });
                 
-                gridData.getElementsByClassName("contrast-rating")[0].innerHTML = interpretContrast(contrast(tempColor, otherColor));
+                gridData.getElementsByClassName("contrast-rating")[0].innerHTML = interpretContrast(evaluateContrast(tempColor, otherColor));
                 
-                gridData.getElementsByClassName("contrast-value")[0].innerHTML = contrast(tempColor, otherColor).toFixed(2);
+                gridData.getElementsByClassName("contrast-value")[0].innerHTML = evaluateContrast(tempColor, otherColor).toFixed(2);
             });
             
         }
     };
     
-    //UTLITY FOR CONVERTING HEX AND RGB
+    //takes a color as RGB array, step size (between 0 and 1) and direction (-1 or 1) and returns a color with a lighter or darker luminosity 
+    shiftColorLuminosity = function (color, step, direction) {
+        var tempHSL, newRGB, roundedRGB;
+        
+        tempHSL = new RgbToHsl(color[0], color[1], color[2]);
+        tempHSL[2] = Math.min(1, Math.max(0, tempHSL[2] + direction * step));
+        
+        newRGB = new HslToRgb(tempHSL[0], tempHSL[1], tempHSL[2]);
+        roundedRGB = [Math.round(newRGB[0]), Math.round(newRGB[1]), Math.round(newRGB[2])];
+
+       //if the step size is very small, this makes sure that the RGB value changes by at least 1
+        while (color.toString() === roundedRGB.toString() && roundedRGB.toString() !== "0,0,0" && roundedRGB.toString() !== "255,255,255") {
+            tempHSL[2] = Math.min(1, Math.max(0, tempHSL[2] + direction * step));
+            newRGB = new HslToRgb(tempHSL[0], tempHSL[1], tempHSL[2]);
+            roundedRGB = [Math.round(newRGB[0]), Math.round(newRGB[1]), Math.round(newRGB[2])];
+        }
+        return roundedRGB;
+    };
     
+    //given a color and a colorIndex, replaces the color in colorData[colorIndex] with the new color
+    replaceColor = function (color, colorIndex) {
+        colorData.splice(colorIndex, 1, color);
+        constructTable(colorData, paletteTable);
+    };
+    
+    //removes the color at colorData[colorIndex]
+    deleteColor = function (colorIndex) {
+        colorData.splice(colorIndex, 1);
+        constructTable(colorData, paletteTable);
+    };
+    
+
+    //COLOR TRANSFORMATION FUNCTIONS
+
     parseHex = function (hexInput, redInput, greenInput, blueInput, colorDisplay) {
-        var rgbValue = hexToRGB(hexInput.value);
+        var rgbValue = hexToRgb(hexInput.value);
         
         if (rgbValue !== null) {
             colorDisplay.style.backgroundColor = "#" + hexInput.value;
@@ -474,20 +517,12 @@
         }
     };
     
-    isValidRGB = function (val) {
-        if (val !== "" && val >= 0 && val < 256) {
-            return true;
-        } else {
-            return false;
-        }
-    };
-    
-    parseRGB = function (hexInput, redInput, greenInput, blueInput, colorDisplay) {
+    parseRgb = function (hexInput, redInput, greenInput, blueInput, colorDisplay) {
         var redValue = redInput.value,
             greenValue = greenInput.value,
             blueValue = blueInput.value;
         
-        if (isValidRGB(redValue) && isValidRGB(greenValue) && isValidRGB(blueValue)) {
+        if (isValidRgb(redValue) && isValidRgb(greenValue) && isValidRgb(blueValue)) {
             
             colorDisplay.style.backgroundColor = "rgb(" + redValue + ", " + greenValue + ", " + blueValue + ")";
             
@@ -514,7 +549,7 @@
         return hex;
     };
     
-    hexToRGB = function (hex) {
+    hexToRgb = function (hex) {
         var m = null;
         if (hex.length === 3) {
             m = hex.match(/([0-9a-f]{3})$/i);
@@ -535,7 +570,7 @@
         }
     };
     
-    RGBtoHSL = function (r, g, b) {
+    RgbToHsl = function (r, g, b) {
         r /= 255;
         g /= 255;
         b /= 255;
@@ -562,7 +597,23 @@
         return [h, s, l];
     };
     
-    function hue2rgb(p, q, t) {
+    HslToRgb = function (h, s, l) {
+        var r, g, b,
+            q = l < 0.5 ? l * (1 + s) : l + s - l * s,
+            p = 2 * l - q;
+
+        if (s === 0) {
+            r = g = b = l; // achromatic
+        } else {
+            r = hueToRgb(p, q, h + 1 / 3);
+            g = hueToRgb(p, q, h);
+            b = hueToRgb(p, q, h - 1 / 3);
+        }
+        
+        return [r * 255, g * 255, b * 255];
+    };
+    
+    hueToRgb = function (p, q, t) {
         if (t < 0) {
             t += 1;
         }
@@ -579,28 +630,18 @@
             return p + (q - p) * (2 / 3 - t) * 6;
         }
         return p;
-    }
-    
-    HSLtoRGB = function (h, s, l) {
-        var r, g, b,
-            q = l < 0.5 ? l * (1 + s) : l + s - l * s,
-            p = 2 * l - q;
+    };
 
-        if (s === 0) {
-            r = g = b = l; // achromatic
+    isValidRgb = function (val) {
+        if (val !== "" && val >= 0 && val < 256) {
+            return true;
         } else {
-            r = hue2rgb(p, q, h + 1 / 3);
-            g = hue2rgb(p, q, h);
-            b = hue2rgb(p, q, h - 1 / 3);
+            return false;
         }
-        
-        return [r * 255, g * 255, b * 255];
     };
     
-    //EVALUATING CONTRAST
-    
     //takes an RGB color array [r,g,b] (0-255 range) and returns its luminosity
-    luminosity = function (c) {
+    evaluateLuminosity = function (c) {
         // http://www.w3.org/TR/WCAG20/#relativeluminancedef    
         var rgb, i, chan;
         rgb = [c[0], c[1], c[2]];
@@ -611,18 +652,18 @@
         return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
     };
 
-    //takes 2 RGB color arrays [r,g,b] (0-255 range) and returns their contrast
-    contrast = function (c1, c2) {
+    //takes 2 RGB color arrays [r,g,b] (0-255 range) and returns their contrast value
+    evaluateContrast = function (c1, c2) {
         // http://www.w3.org/TR/WCAG20/#contrast-ratiodef
-        var lum1 = luminosity(c1),
-            lum2 = luminosity(c2);
+        var lum1 = evaluateLuminosity(c1),
+            lum2 = evaluateLuminosity(c2);
         if (lum1 > lum2) {
             return (lum1 + 0.05) / (lum2 + 0.05);
         }
         return (lum2 + 0.05) / (lum1 + 0.05);
     };
 
-    //takes a contrast and returns an integral corresponding to WCAG score
+    //takes a contrast value (0-21) and returns a text string corresponding to WCAG score
     interpretContrast = function (ct) {
         if (ct < 3.1) {
             return "Fail";
@@ -636,16 +677,123 @@
         return "AAA";
     };
 
-    //SIZE MANAGEMENT
-    //if the user changes the size of the browser window, resize the table to fit.
-    resizeTable = function () {
-        var paletteContainer = document.getElementById("palette-container");
-        paletteContainer.style.width = Math.max(paletteTable.clientWidth, document.documentElement.clientWidth - 30) + "px";
-        paletteContainer.style.height = Math.max(paletteTable.clientHeight, document.documentElement.clientHeight  - 150) + "px";
-    };
 
-    window.onresize = function () {
-        resizeTable();
+    //FILE MANAGEMENT FUNCTIONS
+    
+    //called after the user selects the file input button and chooses a file
+    //evaluates whether the file is .ASE or .CSV; if so, reads the color information in the file and loads them into colorData
+    //ASE handling is third party library
+    //CSV handling has light error handling; if information doesn't match the expected format, it just won't load
+    openColorPaletteFile = function () {
+
+        var file = this.files[0],
+            reader = new window.FileReader(),
+            colorString = "";
+        
+        reader.onload = function () {
+            var rawData = reader.result;
+            
+            if (file.name.split(".")[1] === "ase" || file.name.split(".")[1] === "ASE") {
+                loadAse(rawData, function (palette, flattened) {
+                    if (flattened.length > 0) {
+                        
+                        colorData = []; //reset the palette
+            
+                        flattened.forEach(function (color, index) {
+                            var rgbColor = hexToRgb(color.substring(1));
+                            colorData[index] = rgbColor;
+                        });
+                        constructTable(colorData, paletteTable);
+                    }
+                });
+            } else if (file.type === "text/csv") {
+                colorString = rawData.split("\n");
+                if (colorString.length > 0) {
+                    
+                    colorData = []; //reset the palette 
+                
+                    colorString.forEach(function (color, index) {
+                        var colorComponents = color.split(","),
+                            validResult = true;
+
+                        if (colorComponents.length === 3) {
+                            
+                            colorComponents.forEach(function (component, componentIndex) {
+                                colorComponents[componentIndex] = parseInt(component, 10);
+                                if (!isValidRgb(colorComponents[componentIndex])) {
+                                    validResult = false;
+                                }
+                            });
+                            
+                            if (validResult === true) {
+                                colorData[index] = colorComponents;
+                            }
+                        }
+                    });
+                    constructTable(colorData, paletteTable);
+                }
+
+                
+                
+            } else {
+                window.alert("Incompatible file format. Please load a .ASE or .CSV file");
+            }
+        };
+        
+        reader.readAsBinaryString(file);
+    };
+    
+    //given an array, saves each element in the array on its own line, then downloads the file in .CSV format
+    //because colorData is a nested array, each line is saved in the format r, g, b
+    saveAsCSV = function (data) {
+        var saveString = "";
+        
+        if (data.length > 0) {
+            data.forEach(function (color) {
+                saveString = saveString + color + "\n";
+            });
+            
+            downloadFile("palette_" + timestamp + ".csv", saveString, "text/csv");
+        }
+	};
+    
+    //automatically downloads a file locally, by creating then emulating a click on a link
+    //a bit hacky, but seemed the simplest way to get a file saved locally
+    downloadFile = function (filename, text, filetype) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:' + filetype + ';charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    };
+    
+    timestamp = function () {
+        var d = new Date(),
+            yr = d.getFullYear().toString(),
+            mo = (d.getMonth() + 1).toString(),
+            dy = d.getDate().toString(),
+            hr = d.getHours().toString(),
+            mi = d.getMinutes().toString();
+        
+        if (mo.length < 2) {
+            mo = "0" + mo;
+        }
+        if (dy.length < 2) {
+            dy = "0" + dy;
+        }
+        
+        if (hr.length < 2) {
+            hr = "0" + hr;
+        }
+        if (mi.length < 2) {
+            mi = "0" + mi;
+        }
+        return yr + mo + dy + hr + mi;
     };
 
 }());

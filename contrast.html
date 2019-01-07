@@ -12,7 +12,13 @@ Clear all button on the table UI
     
         <meta charset="utf-8"/>
         <title>Color Palette Contrast Tester</title>
-        <script src="contrast.js"></script> 
+        
+        <script type="text/javascript" src = "jdataview.js"></script>
+        <script type="text/javascript" src = "loadAse.js"></script>
+        <script type="text/javascript" src = "ase.js"></script>
+        
+        <script type="text/javascript" src="contrast.js"></script> 
+        
         <link rel="stylesheet" href="styles.css">
     </head>
     
@@ -91,10 +97,13 @@ Clear all button on the table UI
         
         <table id="buttons-container">
             <tr>
-                <td class = "buttons-td">
-                    <div id = "load-button" class = "load-save-button">
-                        Load ASE or CSV
-                    </div>
+                <td class = "buttons-td">                   
+                <label id = "load-button" class = "load-save-button" >
+                    <input id = "load-file-input" type = "file" />
+                    Load ASE or CSV
+                </label>
+                    
+                    
                 </td>
 
                 <td class = "buttons-td">

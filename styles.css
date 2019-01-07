@@ -1,3 +1,7 @@
+//TODO
+//CLEAN UP COLORS
+//TIDY UP LAYOUT - A LITTLE TIGHTER
+
 /*
 #fafafa;
 #efefef;
@@ -12,7 +16,6 @@
 #4e4e4e;
 #1e1e1e;
 */
-
 
 body, p{
     margin:0px;
@@ -69,6 +72,10 @@ table, tr, td{
 
 .load-save-button:hover{
     opacity:0.8;
+}
+
+input[type="file"] {
+    display: none;
 }
 
 /*disable button, for unimplemented feature*/
@@ -247,9 +254,7 @@ table, tr, td{
     background-color:#fafafa;
     width:300px;
     height:310px;
-    position:absolute; //make this fixed, but need to adjust everything else
-    top:80px;
-    left:150px;
+    position:fixed;
 }
 
 #modify-color-display{
