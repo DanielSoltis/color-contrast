@@ -1,24 +1,20 @@
 //TODO:
 
-//close 'x' on each modal window
 //interact with a single box to just look at those two colors
-//save as ASE
-
-
-
-
+//generally look at the interface for adding and changing colors
+//let users name or rename colors
 
 
 (function () {
 
-    /* global window, document, loadAse */
+    /* global window, document, loadAse, Blob, DataView, ArrayBuffer */
 
     "use strict";
 
     var
         //GLOBAL VARIABLES
-        colorData = [], //array of all colors being evaluated, in [[r1,g1,b1],[r2,g2,b2],...] format
-        selectedColorIndex, tempColor = [0, 0, 0], //hold information about a color that has been selected to be modified
+        colorData = [], //array of all colors being evaluated, in [[r1,g1,b1, name1],[r2,g2,b2, name2],...] format
+        selectedColorIndex, tempColor = [0, 0, 0, ""], //hold information about a color that has been selected to be modified
         paletteTable, //table that displays the color grid
 
         //SETUP AND VIEW MANAGEMENT FUNCTIONS
@@ -34,17 +30,32 @@
         evaluateLuminosity, evaluateContrast, interpretContrast,
     
         //FILE MANAGEMENT FUNCTIONS
-        openColorPaletteFile, saveAsCSV, downloadFile, timestamp;
+        openColorPaletteFile, saveAsCSV, saveAsASE, timestamp, downloadBlob, downloadURL;
         
     //When the window is loaded, calls the setup functions and constructs the initial table
     window.onload = function () {
+        var savedDataString,
+            index;
+        
         setupTransparentOverlayForModals();
         setupAddColorModal();
         setupModifyColorModal();
-        
+
         setupFileManagement();
         
         paletteTable = document.getElementById("palette-table");
+        if (typeof (Storage) !== "undefined") {
+            
+            savedDataString = window.localStorage.getItem("colorData");
+            
+            if (savedDataString !== null && savedDataString !== "") {
+                savedDataString = savedDataString.split(",");
+                for (index = 0; index < savedDataString.length / 4; index = index + 1) {
+                    colorData[index] = [parseInt(savedDataString[4 * index], 10), parseInt(savedDataString[4 * index + 1], 10), parseInt(savedDataString[4 * index + 2], 10), savedDataString[4 * index + 3]];
+                }
+            }
+        }
+        
         constructTable(colorData, paletteTable);
         resizeTable();
     };
@@ -58,10 +69,17 @@
 
     //sets up the transparent overlay that appears behind every modal window
     setupTransparentOverlayForModals = function () {
-        var transparency = document.getElementById("transparency");
+        var transparency = document.getElementById("transparency"),
+            closeButtons = document.getElementsByClassName("close-button");
         transparency.onclick = function () {
             hideModals();
         };
+        
+        [].forEach.call(closeButtons, function (closeButton) {
+            closeButton.addEventListener("click", function () {
+                hideModals();
+            });
+        });
     };
 
     //sets up the behaviors for the elements in the Add Color modal
@@ -107,15 +125,17 @@
         };
         
         //cancel button closes the window without changing any data
-        cancelButton.onclick = function () {
+        cancelButton.addEventListener("click", function () {
             hideModals();
-        };
+        });
         
         //confirm button adds the new color to the table
-        confirmButton.onclick = function () {
-            addColor(redInput.value, greenInput.value, blueInput.value);
-            hideModals();
-        };
+        confirmButton.addEventListener("click", function () {
+            if ((isValidRgb(redInput.value) && isValidRgb(greenInput.value) && isValidRgb(blueInput.value))) {
+                addColor(redInput.value, greenInput.value, blueInput.value);
+                hideModals();
+            }
+        });
     };
     
     //sets up the behaviors for the elements in the Modify Color modal
@@ -125,33 +145,33 @@
             cancelButton = document.getElementById("modify-color-cancel-button"),
             confirmButton = document.getElementById("modify-color-confirm-button"),
             deleteButton = document.getElementById("delete-color-button");
-        
-        darkerButton.onclick = function (e) {
+
+        darkerButton.addEventListener("click", function (e) {
             if (e.shiftKey) {
                 tempColor = shiftColorLuminosity(tempColor, 0.02, -1);
             } else {
                 tempColor = shiftColorLuminosity(tempColor, 0.001, -1);
             }
             updateModifyDisplay(tempColor);
-        };
+        });
         
-        lighterButton.onclick = function (e) {
+        lighterButton.addEventListener("click", function (e) {
             if (e.shiftKey) {
                 tempColor = shiftColorLuminosity(tempColor, 0.02, 1);
             } else {
                 tempColor = shiftColorLuminosity(tempColor, 0.001, 1);
             }
             updateModifyDisplay(tempColor);
-        };
+        });
         
-        cancelButton.onclick = function () {
+        cancelButton.addEventListener("click", function () {
             hideModals();
-        };
+        });
 
-        confirmButton.onclick = function () {
+        confirmButton.addEventListener("click", function () {
             replaceColor(tempColor, selectedColorIndex);
             hideModals();
-        };
+        });
         
         deleteButton.onclick = function () {
             var response = window.confirm("Delete this color?");
@@ -159,15 +179,43 @@
                 deleteColor(selectedColorIndex);
                 hideModals();
             }
+            this.blur();
         };
     };
     
     //adds event listeners for the buttons for loading and saving files
     setupFileManagement = function () {
-        document.getElementById("load-file-input").addEventListener("change", openColorPaletteFile, false);
+        
+        //when the user clicks on the 'load ASE ior CSV' button, this creates an HTML file input
+        //and an event listener for when the user has selected a file to load.
+        //i'm surprised this works. srs hack.
+        document.getElementById("load-button").addEventListener("click", function () {
+            var fileLoadElement = document.createElement("input");
+            fileLoadElement.type = "file";
+            fileLoadElement.addEventListener("change", openColorPaletteFile, false);
+            fileLoadElement.click();
+            this.blur();
+        }, false);
+
         document.getElementById("save-csv-button").addEventListener("click", function () {
             saveAsCSV(colorData);
+            this.blur();
         }, false);
+        
+        document.getElementById("save-ase-button").addEventListener("click", function () {
+            saveAsASE(colorData);
+            this.blur();
+        }, false);
+        
+        document.getElementById("clear-all-button").addEventListener("click", function () {
+            var response = window.confirm("Remove all colors from the palette?");
+            if (response === true) {
+                colorData = [];
+                constructTable(colorData, paletteTable);
+            }
+            this.blur();
+        }, false);
+            
     };
     
     //given an array colorData with [r,g,b] values for each color and an HTML table container paletteTable,
@@ -175,25 +223,33 @@
     constructTable = function (colorData, paletteTable) {
 
         paletteTable.innerHTML = "";
-
+        
+        if (typeof (Storage) !== "undefined") {
+            window.localStorage.setItem("colorData", colorData);
+        }
+        
         //TOP ROW
         var labelRow = document.createElement("TR"),
-            addColorButton = document.createElement("TD");
+            addColorButtonCell = document.createElement("TD"),
+            addColorButton = document.createElement("BUTTON");
 
         paletteTable.appendChild(labelRow);
 
         //button to add a color, in the top left corner 
+        addColorButtonCell.id = "add-color-button-cell";
         addColorButton.id = "add-color-button";
+        addColorButton.className = "secondary-button";
         addColorButton.innerHTML = "Add color";
         addColorButton.onclick = function () {
             openAddColorModal();
         };
-        labelRow.appendChild(addColorButton);
+        labelRow.appendChild(addColorButtonCell);
+        addColorButtonCell.appendChild(addColorButton);
 
         //labels for each color in the palette, across the top row
         colorData.forEach(function (thisColor, i) {
             var topLabel = document.createElement("TD"),
-                topLabelData = document.createElement("DIV");
+                topLabelData = document.createElement("BUTTON");
             topLabel.className = "top-label-td";
             topLabel.onclick = function () {
                 selectedColorIndex = i;
@@ -212,7 +268,7 @@
 
             var gridRow = document.createElement("TR"),
                 sideLabel = document.createElement("TD"),
-                sideLabelData = document.createElement("DIV");
+                sideLabelData = document.createElement("BUTTON");
 
             paletteTable.appendChild(gridRow);
 
@@ -259,8 +315,8 @@
     //sets the size of the div containing the table to fit the table contents or fill the browser window, whichever is larger
     resizeTable = function () {
         var paletteContainer = document.getElementById("palette-container");
-        paletteContainer.style.width = Math.max(paletteTable.clientWidth, document.documentElement.clientWidth - 30) + "px";
-        paletteContainer.style.height = Math.max(paletteTable.clientHeight, document.documentElement.clientHeight  - 150) + "px";
+        paletteContainer.style.width = (document.documentElement.clientWidth - 48) + "px";
+        paletteContainer.style.height = (document.documentElement.clientHeight  - paletteContainer.getBoundingClientRect().top - 32) + "px";
     };
 
     //closes any modal window
@@ -269,9 +325,13 @@
             modals = document.getElementsByClassName("modal-window");
         
         transparency.style.visibility = "hidden";
+        
         [].forEach.call(modals, function (modal) {
             modal.style.visibility = "hidden";
         });
+        
+        document.getElementById("table-container").style.visibility = "visible";
+       // document.getElementById("load-button").focus();
     };
     
     
@@ -284,14 +344,14 @@
          
         transparency.style.visibility = "visible";
         addColorModal.style.visibility = "visible";
+        document.getElementById("table-container").style.visibility = "hidden";
+       // document.getElementById("red").focus();
     };
     
     //given r, g, and b values (shoud be integer 0-255), adds a color to colorData and updates the table
     addColor = function (r, g, b) {
-        if ((isValidRgb(r) && isValidRgb(g) && isValidRgb(b))) {
-            colorData.unshift([r, g, b]);
-            constructTable(colorData, paletteTable);
-        }
+        colorData.unshift([r, g, b, ""]);
+        constructTable(colorData, paletteTable);
     };
     
     //opens the modal window that allows a user to modify or remove an existing color
@@ -299,38 +359,24 @@
         var modifyColorModal = document.getElementById("modify-color-modal"),
             transparency = document.getElementById("transparency"),
             selectedColorGrid = document.getElementById("selected-color-grid"),
-            labelRow = document.createElement("TR"),
-            label = document.createElement("TD"),
-            labelData = document.createElement("DIV"),
-            selectedColor = colorData[colorIndex],
-            modifyControlsContainer = document.getElementById("modify-controls-container"),
-            modifyColorDisplay = document.getElementById("modify-color-display");
+            selectedColor = colorData[colorIndex];
     
         transparency.style.visibility = "visible";
         modifyColorModal.style.visibility = "visible";
+        document.getElementById("table-container").style.visibility = "hidden";
         
         tempColor = selectedColor;
         
         selectedColorGrid.innerHTML = "";
-        modifyColorDisplay.style.backgroundColor = "rgb(" + selectedColor[0] + "," + selectedColor[1] + "," + selectedColor[2] + ")";
         
         if (topOrSide === 0) {
+            
             //if the clicked color was on the top, make a vertical column of the selected color and all the other colors
             
-            //position the controls container to the right of the column.
-            modifyControlsContainer.style.left = "170px";
-            modifyControlsContainer.style.top = "100px";
+            //position the grid to the right of the controls container
             selectedColorGrid.className = "top"; //this is a hack so I can see which version of the grid I am using later
-            
-            //make the label
-            selectedColorGrid.appendChild(labelRow);
-            label.className = "top-label-td";
-            labelRow.appendChild(label);
-
-            labelData.className = "top-label-data";
-            labelData.style.borderColor = "rgb(" + selectedColor[0] + "," + selectedColor[1] + "," + selectedColor[2] + ")";
-            labelData.innerHTML = selectedColor[0] + ", " + selectedColor[1] + ", " + selectedColor[2];
-            label.appendChild(labelData);
+            selectedColorGrid.style.left = "328px";
+            selectedColorGrid.style.top = "80px";
             
             //make a column of all the other elements
             colorData.forEach(function (color, index) {
@@ -365,20 +411,10 @@
         } else {
             //if the clicked color was on the side, make a horizontal row of the selected color and all the other colors
             
-            //position the controls container below a horizontal row and to the left
-            modifyControlsContainer.style.left = "40px";
-            modifyControlsContainer.style.top = "190px";
+            //position the grid to the left and below the controls container
             selectedColorGrid.className = "side";
-            
-            //make the label
-            selectedColorGrid.appendChild(labelRow);
-            label.className = "side-label-td";
-            labelRow.appendChild(label);
-
-            labelData.className = "side-label-data";
-            labelData.style.borderColor = "rgb(" + selectedColor[0] + "," + selectedColor[1] + "," + selectedColor[2] + ")";
-            labelData.innerHTML = selectedColor[0] + ", " + selectedColor[1] + ", " + selectedColor[2];
-            label.appendChild(labelData);
+            selectedColorGrid.style.top = "408px";
+            selectedColorGrid.style.left = "16px";
             
             //make a column of all the other elements
             colorData.forEach(function (color, index) {
@@ -390,7 +426,7 @@
                         contrastValue = document.createElement("DIV");
 
                     gridItem.className = "grid-item";
-                    labelRow.appendChild(gridItem);
+                    selectedColorGrid.appendChild(gridItem);
 
                     gridData.className = "grid-data";
                     gridData.style.backgroundColor = "rgb(" + selectedColor[0] + "," + selectedColor[1] + "," + selectedColor[2] + ")";
@@ -406,23 +442,20 @@
                 }
             });
         }
+        updateModifyDisplay();
     };
 
     updateModifyDisplay = function () {
         var selectedColorGrid = document.getElementById("selected-color-grid"),
             modifyColorDisplay = document.getElementById("modify-color-display"),
-            label,
+            modifyColorLabel = document.getElementById("modify-color-label"),
             gridDataElements = selectedColorGrid.getElementsByClassName("grid-data");
 
         modifyColorDisplay.style.backgroundColor = "rgb(" + tempColor[0] + "," + tempColor[1] + "," + tempColor[2] + ")";
         
+        modifyColorLabel.innerHTML = tempColor[0] + "," + tempColor[1] + "," + tempColor[2] + "<br>#" + rgbToHex(tempColor[0]) + rgbToHex(tempColor[1]) + rgbToHex(tempColor[2]);
+        
         if (selectedColorGrid.className === "top") {
-            
-            label = selectedColorGrid.getElementsByClassName("top-label-data")[0];
-           
-            //change the border color and the label on the label data. 
-            label.style.borderColor = "rgb(" + tempColor[0] + "," + tempColor[1] + "," + tempColor[2] + ")";
-            label.innerHTML = tempColor[0] + ", " + tempColor[1] + ", " + tempColor[2];
             
             //change the font color for each other item in the grid
             [].forEach.call(gridDataElements, function (gridData) {
@@ -443,11 +476,6 @@
             });
             
         } else if (selectedColorGrid.className === "side") {
-            
-            label = selectedColorGrid.getElementsByClassName("side-label-data")[0];
-            //change the border color and the label on the label data. 
-            label.style.borderColor = "rgb(" + tempColor[0] + "," + tempColor[1] + "," + tempColor[2] + ")";
-            label.innerHTML = tempColor[0] + ", " + tempColor[1] + ", " + tempColor[2];
             
             //change the background color for each other item in the grid
             [].forEach.call(gridDataElements, function (gridData) {
@@ -488,9 +516,9 @@
         return roundedRGB;
     };
     
-    //given a color and a colorIndex, replaces the color in colorData[colorIndex] with the new color
+    //given a color and a colorIndex, replaces the color in colorData[colorIndex] with the new color but the same name
     replaceColor = function (color, colorIndex) {
-        colorData.splice(colorIndex, 1, color);
+        colorData.splice(colorIndex, 1, [color[0], color[1], color[2], colorData[colorIndex][3]]);
         constructTable(colorData, paletteTable);
     };
     
@@ -500,7 +528,6 @@
         constructTable(colorData, paletteTable);
     };
     
-
     //COLOR TRANSFORMATION FUNCTIONS
 
     parseHex = function (hexInput, redInput, greenInput, blueInput, colorDisplay) {
@@ -694,14 +721,16 @@
             var rawData = reader.result;
             
             if (file.name.split(".")[1] === "ase" || file.name.split(".")[1] === "ASE") {
-                loadAse(rawData, function (palette, flattened) {
-                    if (flattened.length > 0) {
+                
+                loadAse(rawData, function (palette) {
+                    
+                    if (palette.colors.length > 0) {
                         
                         colorData = []; //reset the palette
             
-                        flattened.forEach(function (color, index) {
-                            var rgbColor = hexToRgb(color.substring(1));
-                            colorData[index] = rgbColor;
+                        palette.colors.forEach(function (color, index) {
+                           // var rgbColor = hexToRgb(color.substring(1));
+                            colorData[index] = [color.html_rgb[0], color.html_rgb[1], color.html_rgb[2], color.name];
                         });
                         constructTable(colorData, paletteTable);
                     }
@@ -716,12 +745,14 @@
                         var colorComponents = color.split(","),
                             validResult = true;
 
-                        if (colorComponents.length === 3) {
+                        if (colorComponents.length === 4) {
                             
                             colorComponents.forEach(function (component, componentIndex) {
-                                colorComponents[componentIndex] = parseInt(component, 10);
-                                if (!isValidRgb(colorComponents[componentIndex])) {
-                                    validResult = false;
+                                if (componentIndex < 3) {
+                                    colorComponents[componentIndex] = parseInt(component, 10);
+                                    if (!isValidRgb(colorComponents[componentIndex])) {
+                                        validResult = false;
+                                    }
                                 }
                             });
                             
@@ -733,8 +764,6 @@
                     constructTable(colorData, paletteTable);
                 }
 
-                
-                
             } else {
                 window.alert("Incompatible file format. Please load a .ASE or .CSV file");
             }
@@ -753,24 +782,115 @@
                 saveString = saveString + color + "\n";
             });
             
-            downloadFile("palette_" + timestamp + ".csv", saveString, "text/csv");
+           // downloadFile("palette_" + timestamp() + ".csv", saveString, "text/csv");
+            downloadBlob(saveString, "palette_" + timestamp() + ".csv", "text/csv");
         }
 	};
     
-    //automatically downloads a file locally, by creating then emulating a click on a link
-    //a bit hacky, but seemed the simplest way to get a file saved locally
-    downloadFile = function (filename, text, filetype) {
-        var element = document.createElement('a');
-        element.setAttribute('href', 'data:' + filetype + ';charset=utf-8,' + encodeURIComponent(text));
-        element.setAttribute('download', filename);
+    saveAsASE = function (data) {
+    
+        var buffer,
+            view,
+            allStringsLength = 0,
+            bufferLength,
+            byteIndex = 0;
 
-        element.style.display = 'none';
-        document.body.appendChild(element);
+        //calculate the length of the buffer needed for the ASE file
+        //signature: 4 bytes
+        //version: 4 bytes
+        //number of blocks: 4 bytes
+        //FOR EACH BLOCK - colorData.length
+        //block start indicator: 2 bytes
+        //block size: 4 bytes
+        //name string length: 2 bytes
+        //name string: 2*(color[3].length + 1) (different for each color)
+        //color mode: 4 bytes
+        //RGB color values: 3*4 bytes
+        //type: 1 byte
+        //padding: 1 byte
+        data.forEach(function (color) {
+            allStringsLength += color[3].length + 1;
+        });
 
-        element.click();
+        bufferLength = 4 + 4 + 4 + data.length * (2 + 4 + 2  + 4 + 12 + 2) + 2 * allStringsLength;
 
-        document.body.removeChild(element);
+        // create an ArrayBuffer with a size in bytes
+        buffer = new ArrayBuffer(bufferLength);
+        view = new DataView(buffer);
+
+        //Set file signature ASEF as the first 4 characters
+        [].forEach.call("ASEF", function (character, index) {
+            view.setUint8(index, character.charCodeAt(0));
+        });
+        byteIndex += 4;
+
+        //Set the version to be 1.0
+        view.setInt16(byteIndex, 1);
+        byteIndex += 2;
+        view.setInt16(byteIndex, 0);
+        byteIndex += 2;
+
+        //Set the number of blocks, equal to the number of colors
+        view.setInt32(byteIndex, data.length);
+        byteIndex += 4;
+
+        //for each block (each block represents a single color)
+        data.forEach(function (color) {
+
+            //indicate the start of a block through 2 bytes 0x01?
+            view.setInt16(byteIndex, 1);
+            byteIndex += 2;
+
+            //calculate the size of this block (not including this or previous bytes)
+            //2 bytes for the blocks indicating the string length
+            //2 bytes per character, plus 2 terminal bytes, for the name string: colorData[0][3].length
+            //4 bytes for the color mode
+            //12 bytes for red, green and blue (4 bytes each) (could be different for different color mode)
+            view.setInt32(byteIndex, 20 + 2 * (color[3].length + 1));
+            byteIndex += 4;
+
+            //name string length - note this is for the string with a terminal blank, not the number of bytes
+            view.setInt16(byteIndex, color[3].length + 1);
+            byteIndex += 2;
+
+            color[3].split("").forEach(function (character) {
+                view.setUint8(byteIndex, 0);
+                view.setUint8(byteIndex + 1, character.charCodeAt(0));
+                byteIndex += 2;
+            });
+            view.setInt16(byteIndex, 0);
+            byteIndex += 2;
+
+            //Set the color mode to RGB in 4 bytes
+            view.setUint8(byteIndex, "R".charCodeAt(0));
+            byteIndex += 1;
+            view.setUint8(byteIndex, "G".charCodeAt(0));
+            byteIndex += 1;
+            view.setUint8(byteIndex, "B".charCodeAt(0));
+            byteIndex += 1;
+            view.setUint8(byteIndex, " ".charCodeAt(0));
+            byteIndex += 1;
+
+            //Set the color values. Finally!
+            view.setFloat32(byteIndex, color[0] / 255);
+            byteIndex += 4;
+            view.setFloat32(byteIndex, color[1] / 255);
+            byteIndex += 4;
+            view.setFloat32(byteIndex, color[2] / 255);
+            byteIndex += 4;
+
+            //Set the color type
+            view.setUint8(byteIndex, 0); //global color, seems safest.
+            byteIndex += 1;
+
+            //final padding byte
+            view.setUint8(byteIndex, 0);
+            byteIndex += 1;
+        });
+
+        downloadBlob(buffer, 'test.ase', 'application/octet-stream');
     };
+
     
     timestamp = function () {
         var d = new Date(),
@@ -794,6 +914,31 @@
             mi = "0" + mi;
         }
         return yr + mo + dy + hr + mi;
+    };
+    
+    downloadBlob = function (data, fileName, mimeType) {
+        var blob, url;
+        blob = new Blob([data], {
+            type: mimeType
+        });
+        url = window.URL.createObjectURL(blob);
+        downloadURL(url, fileName);
+        window.setTimeout(function () {
+            return window.URL.revokeObjectURL(url);
+        }, 1000);
+    };
+    
+    //automatically downloads a file locally, by creating then emulating a click on a link
+    //a bit hacky, but seemed the simplest way to get a file saved locally
+    downloadURL = function (data, fileName) {
+        var a;
+        a = document.createElement('a');
+        a.href = data;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.style = 'display: none';
+        a.click();
+        a.remove();
     };
 
 }());

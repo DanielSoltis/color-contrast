@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<html lang = "en">
+
+    <head>
+    
+        <meta charset="utf-8"/>
+        <title>Color Palette Contrast Tester</title>
+        
+        <script type="text/javascript" src = "jdataview.js"></script>
+        <script type="text/javascript" src = "loadAse.js"></script>
+        <script type="text/javascript" src = "ase.js"></script>
+        
+        <script type="text/javascript" src="contrast.js"></script> 
+        
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    
+    <body>
+        
+        <!-- MODAL WINDOWS -->
+        <div id = "add-color-modal" class = "modal-window">
+            
+            <div class = "modal-label">Add a color</div>
+            
+            <button class = "close-button secondary-button">&times;</button>
+            
+            <div id = "add-color-controls-container">
+                <div id = "rgb-container">
+                    <div class="rgb-entry-form">
+                        R
+                        <input class="rgb-input" type="number" id="red" placeholder = "127">
+                    </div>
+                    <div class="rgb-entry-form">
+                        G
+                        <input class="rgb-input" type="number" id="green" placeholder = "127">
+                    </div>
+                    <div class="rgb-entry-form">
+                        B
+                        <input class="rgb-input" type="number" id="blue" placeholder = "127">
+                    </div>
+                </div>
+
+                <div id = "hex-container">
+                    <div class="hex-entry-form">
+                        Hex #
+                        <input class="hex-input" type="text" id="hex" placeholder = "7F7F7F">
+                    </div>
+                </div>
+
+                <div id = "color-display"></div>
+
+                <button id = "add-color-cancel-button" class = "secondary-button cancel-button">Cancel</button>
+
+                <button id = "add-color-confirm-button" class = "primary-button confirm-button">Add color</button>
+            </div>
+        </div>
+        
+        <div id = "modify-color-modal" class = "modal-window">
+            
+            <div class = "modal-label">Change color</div>
+            
+            <button class = "close-button secondary-button">&times;</button>
+            
+            <table id = "selected-color-grid"></table>
+            
+            <div id = "modify-controls-container">
+                
+                <div id = "modify-color-display"></div>
+                
+                <div id = "modify-color-label"></div>
+            
+                <button id = "darker-button" class = "modify-color-button">
+                    Darker
+                </button>
+
+                <button id = "lighter-button" class = "modify-color-button">
+                    Lighter
+                </button>
+
+                <button id = "modify-color-cancel-button" class = "secondary-button cancel-button">Cancel</button>
+
+                <button id = "modify-color-confirm-button" class = "primary-button confirm-button">Update color</button>
+
+                <button id = "delete-color-button" class = "alert-button" >Remove this color</button>
+                
+                <p id = "instructions">Hold down the shift key to darken or lighten in bigger steps.</p>
+            
+            </div>
+                
+        </div>
+
+        <div id = "transparency"></div>
+        
+        <!-- TABLE -->
+        <div id = "table-container">
+        
+            <h1>Color Palette Contrast Tester</h1>
+            
+            <div id = "menu-buttons-container" >
+                         
+                <button id = "load-button" class = "load-save-button primary-button">
+                    Load ASE or CSV
+                </button>
+
+                <button id = "save-csv-button" class = "load-save-button primary-button">
+                    Save CSV
+                </button>
+
+                <button id = "save-ase-button" class = "load-save-button primary-button">
+                    Save ASE
+                </button>
+
+                <button id = "clear-all-button" class = "secondary-button">
+                    Clear all
+                </button>                
+            </div>
+
+            <div id = "palette-container">
+                <table id = "palette-table">    
+                </table>
+            </div>
+            
+        </div>
+        
+    </body>
+    
+</html>

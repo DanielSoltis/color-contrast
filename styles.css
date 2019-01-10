@@ -1,27 +1,17 @@
-//TODO
-//CLEAN UP COLORS
-//TIDY UP LAYOUT - A LITTLE TIGHTER
-
 /*
-#fafafa;
-#efefef;
-#d7d7d7;
-#bdbdbd;
-#a3a3a3;
-#8f8f8f;
-#7b7b7b;
-#747474;
-#696969;
-#5f5f5f;
-#4e4e4e;
-#1e1e1e;
+Dark text                           #1e1e1e
+Primary buttons                     #555555
+Secondary buttons                   #c3c3c3
+Body and modal background           #ececec
+Light text, controls background     #fafafa
+Delete color, error message         #cc0000
 */
 
 body, p{
     margin:0px;
     padding:0px;
     font-family: sans-serif;
-    background-color:#efefef;
+    background-color:#ececec;
     color:#1e1e1e;
     
     /*not sure if this an accessibility issue. keeps you from selecting text when you click on buttons*/
@@ -30,12 +20,59 @@ body, p{
     -khtml-user-select: none; /* Konqueror HTML */
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+
+button { /*destyle buttons*/
+    border: none;
+    margin: 0px;
+    padding:0px;
+    text-decoration: none;
+    font-family: sans-serif;
+    font-size: 1em;
+    cursor: pointer;
+    text-align: center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+button:hover{
+    opacity:0.8;
+}
+
+.primary-button{
+    background-color: #555555;
+    color: #fafafa;
+}
+
+.primary-button:active{
+    color: #555555;
+    background-color: #fafafa;
+}
+
+.secondary-button{
+    background-color: #c3c3c3;
+    color: #1e1e1e;
+}
+
+.secondary-button:active{
+    color: #c3c3c3;
+    background-color: #1e1e1e;
+}
+
+.alert-button{
+    color: #cc0000;
+    background-color: transparent;
+}
+
+:focus{
+    outline:none;
+    border: solid 1px #555555;
+    box-shadow: 4px 4px 4px #555555;
 }
 
 h1{
-    margin:20px 10px 10px 20px;
+    margin:16px 8px 8px 16px;
     font-size:1.5em;
     font-weight:500;
 }
@@ -47,133 +84,139 @@ table, tr, td{
 }
 
 /*LOAD AND SAVE BUTTONS*/
-#buttons-container{
-    margin-left: 10px;
+#menu-buttons-container{
+    min-width:488px;
+    margin:24px 16px;
+    height:32px;
 }
 
 .buttons-td{
-    padding:10px;
+    padding:8px;
     margin:0px;
     border:none;
 }
 
 .load-save-button{
-    min-width:100px;
-    padding:0px 10px;
-    height:30px;
+    float:left;
+    margin-right:16px;
+    width:96px;
+    padding:0px 8px;
+    height:32px;
+    line-height:32px;
     display:inline-block;
-    vertical-align: middle;
     text-align: center;
-    line-height:30px;
-    background-color: #5f5f5f;
-    color:#efefef;
-    cursor:default;
 }
 
-.load-save-button:hover{
-    opacity:0.8;
-}
-
-input[type="file"] {
+input[type="file"] { /*hack to treat the load button as an HTML file input but still have custom styling*/ 
     display: none;
 }
 
-/*disable button, for unimplemented feature*/
-#save-ase-button{
-    opacity: 0.2;
+#load-button{
+    width:152px;
+}
+
+#clear-all-button{
+    float:right;
+    width:96px;
+    padding:0px 8px;
+    height:32px;
+    line-height:32px;
+    display:inline-block;
+    text-align: center;
 }
 
 /*MODAL WINDOWS*/
 #transparency{
-    background-color:#000000;
+    background-color:#1e1e1e;
     opacity:0.5;
     position:fixed;
     top:0px;
     left:0px;
     width:100%;
     height:100%;
-    z-index:98;
     visibility:hidden;
+    z-index:98;
 }
 
 .modal-window{
-    background-color:#efefef;
+    background-color:#ececec;
     visibility:hidden;
     z-index:99;
 }
 
 .modal-label{
-    margin:30px 20px;
+    position:fixed;
+    top:40px;
+    left:32px;
     font-size:1.5em;
     font-weight:500;
     text-align: left;  
 }
 .cancel-button{
-    width:100px;
-    height:30px;
+    width:96px;
+    height:32px;
     display:inline-block;
     vertical-align: middle;
     text-align: center;
-    line-height:30px;
-    background-color: #d7d7d7;
-    color:#5f5f5f;
-    cursor:default;
+    line-height:32px;
 }
 
 .confirm-button{
-    width:140px;
-    height:30px;
+    width:136px;
+    height:32px;
     display:inline-block;
     vertical-align: middle;
     text-align: center;
-    line-height:30px;
-    background-color: #5f5f5f;
-    color:#efefef;
-    cursor:default; 
+    line-height:32px;
 }
 
-.cancel-button:hover, .confirm-button:hover, #lighter-button:hover, #darker-button:hover{
-    opacity:0.8;
+.close-button{
+    padding:0px;
+    position:absolute;
+    top:8px;
+    right:8px;
+
+    height:32px;
+    width:32px;
+    border-radius:18px;
+    line-height:32px;
+    text-align:center;
+    
+    font-size:1.25em;
 }
 
 /*ADDING COLOR */
-#add-color-button{
-    text-align:center;
-    line-height:50px;
-    height:50px;
-    width:110px;
-    color:#1e1e1e;
-    cursor:default;
-    background-color:#bdbdbd;
+#add-color-button-cell{
+    padding:4px;
 }
 
-#add-color-button:hover{
-    opacity:0.8;
+#add-color-button{
+    height:48px;
+    width:96px;
 }
 
 #add-color-modal{
     position:fixed;
-    top:20px;
-    left:20px;
-    bottom:20px;
-    right:20px;
-    min-width:280px;
+    top:16px;
+    left:16px;
+    bottom:16px;
+    right:16px;
+    min-width:328px;
 }
 
 #add-color-controls-container{
     background-color:#fafafa;
-    width:320px;
-    height:330px;
+    width:296px;
+    height:312px;
     position:absolute;
     top:80px;
-    left:20px;
+    left:16px;
 }
 
 #rgb-container{
     position:absolute;
-    left:50%;
-    margin-left:-130px;
-    top:30px;
+    left:24px;
+    top:24px;
 }
 
 .rgb-entry-form{
@@ -183,18 +226,18 @@ input[type="file"] {
 }
 
 .rgb-input{
-    width:40px;
-    padding:3px 5px;
+    width:45px;
+    padding:2px;
+    padding-left:4px;
     font-size:0.9em;
     margin-left:3px;
-    margin-right: 10px;
+    margin-right:8px;
 }
 
 #hex-container{
     position:absolute;
-    left:50%;
-    margin-left:-130px;
-    top:75px;
+    left:24px;
+    top:72px;
 }
 
 .hex-entry-form{
@@ -203,245 +246,223 @@ input[type="file"] {
 }
 
 .hex-input{
-    width:70px;
-    padding:3px 5px;
+    width:72px;
+    padding:2px;
     font-size:0.9em;
 }
 
 #color-display{
-    width:260px;
-    height:100px;
+    width:248px;
+    height:96px;
     position:absolute;
-    left:50%;
-    top:120px;
-    margin-left:-130px;
+    left:24px;
+    top:128px;
     background-color:#7f7f7f;
 }
 
 #add-color-cancel-button{
     position:absolute;
-    top:260px;
-    left:50%;
-    margin-left:-130px;
+    top:256px;
+    left:24px;
 }
 
 #add-color-confirm-button{
     position:absolute;
-    top:260px;
-    left:50%;
-    margin-left:-10px;
+    top:256px;
+    left:136px;
 }
 
 /*CHANGING COLOR*/
 #modify-color-modal{
     position:fixed;
-    top:20px;
-    left:20px;
-    bottom:20px;
-    right:20px;
-    min-width:300px;
-    overflow:auto;
+    top:16px;
+    left:16px;
+    bottom:16px;
+    right:16px;
+    overflow:scroll;
 }
 
 #selected-color-grid{
     position:absolute;
-    top:80px;
-    left:20px;
     background-color:#fafafa;
 }
 
 #modify-controls-container{
     background-color:#fafafa;
-    width:300px;
-    height:310px;
+    width:296px;
+    height:312px;
     position:fixed;
+    top:96px;
+    left:32px;
+}
+
+#modify-color-label{
+    position:absolute;
+    top:44px;
+    left:104px;
+    width:80px;
+    height:48px;
+    text-align:center;
+    line-height:24px;
+    background-color:#fafafa;
+    font-size:0.9em;
 }
 
 #modify-color-display{
     position:absolute;
-    top:30px;
-    left:50%;
-    margin-left:-45px;
-    width:90px;
-    height:90px;
-    background-color:red;
-}
-
-#darker-button{
-    width: 0;
-    height: 0;
-    border-top: 45px solid transparent;
-    border-right: 70px solid #d7d7d7;
-    border-bottom: 45px solid transparent;
-    
-    position:absolute;
-    top:30px;
-    left:50%;
-    margin-left:-125px;
-    
-    background-color:none;
-    cursor:default;
-}
-
-#darker-button:active{
-    border-right: 70px solid #bdbdbd;
-}
-
-#left-arrow-label{
-    width:70px;
-    margin-left:18px;
-    margin-top:-10px;
-    text-align:left;
-    font-size:0.95em;
-    color: #5f5f5f;
-}
-
-#lighter-button{
-    width: 0;
-    height: 0;
-    border-top: 45px solid transparent;
-    border-left: 70px solid #d7d7d7;
-    border-bottom: 45px solid transparent;
-    
-    position:absolute;
-    top:30px;
-    left:50%;
-    margin-left:55px;
-    
-    background-color:none;
-    cursor:default;
-}
-
-#lighter-button:active{
-    border-left: 70px solid #bdbdbd;
-}
-
-#right-arrow-label{
-    width:80px;
-    margin-left:-63px;
-    margin-top:-10px;
-    text-align:left;
-    font-size:0.95em;
-    color: #5f5f5f;
+    top:24px;
+    left:100px;
+    width:88px;
+    height:88px;
 }
 
 .modify-color-button{
-    color:#efefef;
-    cursor:default;
+    width:1px;
+    height:1px;
+    border-top:44px solid transparent;
+    border-bottom:44px solid transparent;
+    background-color:transparent;
+    
+    position:absolute;
+    top:24px;
+    
+    font-size:0.9em;
+    line-height: 0px;
+    color:#1e1e1e;
+}
+
+#darker-button{
+    border-right: 64px solid #c3c3c3;
+    left:24px;
+    text-indent: 15px;
+}
+
+#darker-button:focus{
+    left:20px;
+    top:20px;
+    outline:none;
+    border-top:48px solid transparent;
+    border-bottom:48px solid transparent;
+    border-right: 72px solid #c3c3c3;
+    border-left:none;
+    font-size:1.125em;
+    text-indent: 15px;
+    box-shadow: 2px 0px #1e1e1e;
+}
+
+#darker-button:active{
+    border-right: 72px solid #1e1e1e;
+    color:#c3c3c3;
+}
+
+#lighter-button{
+    border-left: 64px solid #c3c3c3;
+    left:200px;
+    text-indent: -74px;
+}
+
+#lighter-button:focus{
+    left:196px;
+    top:20px;
+    outline:none;
+    border-top:48px solid transparent;
+    border-bottom:48px solid transparent;
+    border-left: 72px solid #c3c3c3;
+    border-right:none;
+    font-size:1.125em;
+    text-indent: -82px;
+    box-shadow: -2px 0px #1e1e1e;
+}
+
+#lighter-button:active{
+    border-left: 72px solid #1e1e1e;
+    color:#c3c3c3;
 }
 
 #modify-color-cancel-button{
     position:absolute;
-    top:160px;
-    left:50%;
-    margin-left:-125px;
+    top:144px;
+    left:24px;
 }
 
 #modify-color-confirm-button{
     position:absolute;
-    top:160px;
-    left:50%;
-    margin-left:-15px;
+    top:144px;
+    left:136px;
 }
 
 #delete-color-button{
-    width:160px;
+    width:240px;
     position:absolute;
-    top:220px;
-    left:50%;
-    margin-left:-80px;
+    top:208px;
+    left:24px;
     text-align:center;
-    color: #cc0000;
-    cursor:default;
-    font-size:1.075em;
-}
-
-#delete-color-button:hover{
-    color: #aa0000;
 }
 
 #instructions{
     position:absolute;
-    top:260px; 
-    left:20px;
-    right:20px;
-    font-size:0.875em;
+    top:256px; 
+    left:24px;
+    right:24px;
+    font-size:0.9em;
     background-color:transparent;
-    color: #1e1e1e;
-    
+    color: #555555;
 }
 
 /*PALETTE TABLE*/
 #palette-container{
     clear:both;
     background-color:#fafafa;
-    padding:5px;
-    margin:10px;
+    padding:8px;
+    margin:16px;
+    overflow:scroll;
 }
 
 .top-label-td{
-    width:100px;
-    height:40px;
-    padding:5px;
-    cursor:default;
+    padding:4px;
 }
 
 .top-label-data{
-    width:80px;
-    height:20px;
-    background-color: #fafafa;
-    color:#1e1e1e;
-    display: inline-block;
+    padding:0px;
+    width:96px;
+    height:48px;
     text-align: center;
-    line-height: 20px;
-    border: 10px solid;
+    border-style:solid;
+    border-width: 8px;
     font-size:0.75em;
 }
 
 .side-label-td{
-    width:60px;
-    height:60px;
-    padding:5px;
-    cursor:default;
+    padding:4px;
 }
 
 .side-label-data{
-    width:80px;
-    height:20px;
-    background-color: #fafafa;
-    color:#1e1e1e;
-    display: inline-block;
+    padding:0px;
+    width:96px;
+    height:56px;
     text-align: center;
-    line-height: 20px;
-    border: 10px solid;
-    border-top:20px solid;
-    border-bottom: 20px solid;
+    border-style:solid;
+    border-width: 8px;
     font-size:0.75em;
 }
 
-.top-label-data:hover, .side-label-data:hover{
-    opacity:0.8;
-}
-
 .grid-item{
-    width:100px;
-    height:60px;
-    padding:5px;
+    padding:4px;
 }
 
 .grid-data{
-    width:100px;
-    height:60px;
+    width:96px;
+    height:56px;
 }
 
 .contrast-rating{
     text-align: center;
-    font-size:1.25em; 
-    padding-top:10px;
+    font-size:1.2em; 
+    padding-top:9px;
 }
      
 .contrast-value{
     text-align: center;
     font-size:0.75em;
-    padding-top:5px;
+    padding-top:3px;
 }
