@@ -27,4 +27,4 @@ You can make the color darker or lighter, or directly change its value.</p>
 <p>Copyright under <a href = https://opensource.org/licenses/MIT>MIT License</a> by Daniel Soltis 2019.</p>
 
 <p>ASE file reading uses code from Ger Hobbelt, which I can't seem to find online anymore...</p>
-<p>Sketchpalette encoding uses code derived from the source code for Andrew Fiorillo's Sketch palettes pugin</p>
+<p>Sketchpalette encoding uses code derived from the source code for Andrew Fiorillo's Sketch palettes plugin.</p>
