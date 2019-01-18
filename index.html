@@ -7,11 +7,11 @@
         <meta charset="utf-8"/>
         <title>Color Palette Contrast Tester</title>
         
-        <script type="text/javascript" src = "jdataview.js"></script>
+        <script type="text/javascript" src = "jdataview.js"></script>        
         <script type="text/javascript" src = "loadAse.js"></script>
         <script type="text/javascript" src = "ase.js"></script>
         
-        <script type="text/javascript" src="contrast.js"></script> 
+        <script type="text/javascript" src="contrast.js"></script>
         
         <link rel="stylesheet" href="styles.css">
     </head>
@@ -19,68 +19,60 @@
     <body>
         
         <!-- MODAL WINDOWS -->
-        <div id = "add-color-modal" class = "modal-window">
-            
-            <div class = "modal-label">Add a color</div>
-            
-            <button class = "close-button secondary-button">&times;</button>
-            
-            <div id = "add-color-controls-container">
-                <div id = "rgb-container">
-                    <div class="rgb-entry-form">
-                        R
-                        <input class="rgb-input" type="number" id="red" placeholder = "127">
-                    </div>
-                    <div class="rgb-entry-form">
-                        G
-                        <input class="rgb-input" type="number" id="green" placeholder = "127">
-                    </div>
-                    <div class="rgb-entry-form">
-                        B
-                        <input class="rgb-input" type="number" id="blue" placeholder = "127">
-                    </div>
-                </div>
-
-                <div id = "hex-container">
-                    <div class="hex-entry-form">
-                        Hex #
-                        <input class="hex-input" type="text" id="hex" placeholder = "7F7F7F">
-                    </div>
-                </div>
-
-                <div id = "color-display"></div>
-
-                <button id = "add-color-cancel-button" class = "secondary-button cancel-button">Cancel</button>
-
-                <button id = "add-color-confirm-button" class = "primary-button confirm-button">Add color</button>
-            </div>
-        </div>
         
-        <div id = "modify-color-modal" class = "modal-window">
+        <div id = "color-modal" class = "modal-window">
             
-            <div class = "modal-label">Change color</div>
+            <div class = "fixed-top">
+                <div id = "add-modify-label" class = "modal-label">Add or change color</div>
             
-            <button class = "close-button secondary-button">&times;</button>
+                <button class = "close-button secondary-button">&times;</button>
+            </div>
             
             <table id = "selected-color-grid"></table>
             
-            <div id = "modify-controls-container">
+            <div id = "controls-container">
                 
-                <div id = "modify-color-display"></div>
+                <div class = "input-container">
+                    Name
+                    <input class="text-input" type="text" id="name-input" placeholder = "Optional color name">
+                </div>
                 
-                <div id = "modify-color-label"></div>
-            
-                <button id = "darker-button" class = "modify-color-button">
-                    Darker
-                </button>
+                <div class = "input-container">
+                    <div class="rgb-entry-form">
+                        R
+                        <input class="rgb-input" type="number" id="red-input" placeholder = "127">
+                    </div>
+                    <div class="rgb-entry-form">
+                        G
+                        <input class="rgb-input" type="number" id="green-input" placeholder = "127">
+                    </div>
+                    <div class="rgb-entry-form">
+                        B
+                        <input class="rgb-input" type="number" id="blue-input" placeholder = "127">
+                    </div>
+                </div>
 
-                <button id = "lighter-button" class = "modify-color-button">
-                    Lighter
-                </button>
+                <div id = "hex-container" class = "input-container">
+                    Hex #
+                    <input class="text-input" type="text" id="hex-input" placeholder = "7F7F7F">
+                </div>
+                
+                <div id = "color-display-container">
 
-                <button id = "modify-color-cancel-button" class = "secondary-button cancel-button">Cancel</button>
+                    <button id = "darker-button" class = "secondary-button increment-button">
+                        <span style = "font-weight:bold">&lang;</span> Darker
+                    </button>
 
-                <button id = "modify-color-confirm-button" class = "primary-button confirm-button">Update color</button>
+                    <div id = "color-display"></div>
+                    
+                    <button id = "lighter-button" class = "secondary-button increment-button">
+                        Lighter <span style = "font-weight:bold">&rang;</span>
+                    </button>                
+                </div>
+                
+                <button id = "cancel-button" class = "secondary-button">Cancel</button>
+
+                <button id = "confirm-button" class = "primary-button">Add or update color</button>
 
                 <button id = "delete-color-button" class = "alert-button" >Remove this color</button>
                 
@@ -89,26 +81,74 @@
             </div>
                 
         </div>
+        
+        <div id = "about-modal" class = "modal-window">
+            <div class = "fixed-top">
+                <div class = "modal-label">About</div>
+            
+                <button class = "close-button secondary-button">&times;</button>
+                
+                <div id = "about-text-container">
+                    <p class = "about-text">
+                        This tool evaluates the contrast between colors in a palette, to make it easier to create UI that meets <a href = https://www.w3.org/TR/UNDERSTANDING-WCAG20/visual-audio-contrast-contrast.html> Web Content Accessibility Guidelines for color contrast</a>. Unlike most other available tools, it evaluates a full palette rather than a single pair of colors, and it loads and saves files used with common design programs.
+                    </p>
+                    
+                    <h2>Loading and saving palettes</h2>
+                     <p class = "about-text">
+                     Use the top menu buttons to load and save color palettes. Colors are limited to solid colors; no transparency, pattern fills or gradients. Supported formats include:
+                    </p>
+                    <ul class = "about-text">
+                        <li>Adobe Swatch Exchange (.ase). Right now, the tool will read grouped colors but won't preserve the groupings when you save. It's on the to-do list.</li>
+                        <li>Sketch palette (.sketchpalette), for use with the <a href = https://github.com/andrewfiorillo/sketch-palettes>Sketch palettes plugin</a></li>
+                        <li>Comma-separated values (.csv) in a custom format. This lets you save and view palettes without any design software.</li>
+                    </ul>
+                    
+                    <h2>Adding an individual color</h2>
+                    <p class = "about-text">
+                        To add an individual color, click on the ‘add color’ button at the top left of the main content area. You can enter RGB or hex values.
+                    </p>
+
+                    <h2>Changing a color</h2>
+                    <p class = "about-text">
+                        To change a color, click on the label at the left or top of the main content area. You can make the color darker or lighter, or directly change its value.
+                    </p>
+                    
+                    <h2>Source code and copyright</h2>
+                    <p class = "about-text">
+                        Copyright under <a href = https://opensource.org/licenses/MIT>MIT License</a> by Daniel Soltis 2019. Source code and additional copyright information are available <a href = https://github.com/DanielSoltis/color-contrast>on Github</a>.
+                    </p>
+                </div>
+            </div>
+            
+        </div>
 
         <div id = "transparency"></div>
         
         <!-- TABLE -->
         <div id = "table-container">
+            
+            <button id = "about-button" class = "secondary-button">
+                About
+            </button>
         
             <h1>Color Palette Contrast Tester</h1>
             
             <div id = "menu-buttons-container" >
                          
-                <button id = "load-button" class = "load-save-button primary-button">
-                    Load ASE or CSV
+                <button id = "load-button" class = "load-save-button secondary-button">
+                    Load palette
                 </button>
 
-                <button id = "save-csv-button" class = "load-save-button primary-button">
-                    Save CSV
-                </button>
-
-                <button id = "save-ase-button" class = "load-save-button primary-button">
+                <button id = "save-ase-button" class = "load-save-button secondary-button">
                     Save ASE
+                </button>
+                
+                <button id = "save-sketch-button" class = "load-save-button secondary-button">
+                    Save for Sketch
+                </button>
+                
+                <button id = "save-csv-button" class = "load-save-button secondary-button">
+                    Save CSV
                 </button>
 
                 <button id = "clear-all-button" class = "secondary-button">

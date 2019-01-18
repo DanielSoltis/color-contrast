@@ -72,9 +72,17 @@ button:hover{
 }
 
 h1{
-    margin:16px 8px 8px 16px;
+    margin:16px 8px 0px 16px;
     font-size:1.5em;
     font-weight:500;
+}
+
+h2{
+    font-weight:bold;
+    padding:0px;
+    margin:0px;
+    margin-bottom: 0.25em;
+    font-size:1em;
 }
 
 table, tr, td{
@@ -83,10 +91,19 @@ table, tr, td{
     border:none;
 }
 
-/*LOAD AND SAVE BUTTONS*/
+a{
+    color:#0000cc;
+    text-decoration:none;
+}
+
+a:hover{
+    text-decoration:underline;
+}
+
+/*MENU BUTTONS*/
 #menu-buttons-container{
-    min-width:488px;
-    margin:24px 16px;
+    min-width:640px;
+    margin:16px 16px 24px 16px;
     height:32px;
 }
 
@@ -99,8 +116,8 @@ table, tr, td{
 .load-save-button{
     float:left;
     margin-right:16px;
-    width:96px;
-    padding:0px 8px;
+    min-width:96px;
+    padding:0px 16px;
     height:32px;
     line-height:32px;
     display:inline-block;
@@ -111,18 +128,18 @@ input[type="file"] { /*hack to treat the load button as an HTML file input but s
     display: none;
 }
 
-#load-button{
-    width:152px;
+#about-button{
+    float:right;
+    margin:4px 16px;
+    height:24px;
+    width:64px;
 }
 
 #clear-all-button{
     float:right;
     width:96px;
-    padding:0px 8px;
     height:32px;
     line-height:32px;
-    display:inline-block;
-    text-align: center;
 }
 
 /*MODAL WINDOWS*/
@@ -139,42 +156,46 @@ input[type="file"] { /*hack to treat the load button as an HTML file input but s
 }
 
 .modal-window{
+    position:fixed;
+    top:16px;
+    left:16px;
+    bottom:16px;
+    right:16px;
+
+    min-width:304px;
+    overflow:scroll;
+    
+    padding:16px;
     background-color:#ececec;
-    visibility:hidden;
     z-index:99;
+    
+    visibility:hidden;
+}
+
+/*fixed top*/
+.fixed-top{
+    position:fixed;
+    min-width:304px;
+    top:16px;
+    left:16px;
+    right:16px;
+    height:32px;
+    padding:16px;
+    background-color:#ececec;
+    z-index:100;
 }
 
 .modal-label{
-    position:fixed;
-    top:40px;
-    left:32px;
+    float:left;
+    margin-top:2px;
     font-size:1.5em;
     font-weight:500;
     text-align: left;  
 }
-.cancel-button{
-    width:96px;
-    height:32px;
-    display:inline-block;
-    vertical-align: middle;
-    text-align: center;
-    line-height:32px;
-}
-
-.confirm-button{
-    width:136px;
-    height:32px;
-    display:inline-block;
-    vertical-align: middle;
-    text-align: center;
-    line-height:32px;
-}
 
 .close-button{
     padding:0px;
-    position:absolute;
-    top:8px;
-    right:8px;
+    float:right;
 
     height:32px;
     width:32px;
@@ -185,225 +206,127 @@ input[type="file"] { /*hack to treat the load button as an HTML file input but s
     font-size:1.25em;
 }
 
-/*ADDING COLOR */
-#add-color-button-cell{
-    padding:4px;
-}
-
-#add-color-button{
-    height:48px;
-    width:96px;
-}
-
-#add-color-modal{
+#about-text-container{
     position:fixed;
-    top:16px;
-    left:16px;
-    bottom:16px;
-    right:16px;
-    min-width:328px;
-}
-
-#add-color-controls-container{
-    background-color:#fafafa;
-    width:296px;
-    height:312px;
-    position:absolute;
     top:80px;
-    left:16px;
+    bottom:32px;
+    left:32px;
+    right:32px;
+    overflow:scroll;
+    max-width:680px;
+    padding:24px 24px 16px 24px;
+    background-color:#fafafa;
 }
 
-#rgb-container{
-    position:absolute;
-    left:24px;
-    top:24px;
+.about-text{
+    background-color:transparent;
+    line-height:24px;
+    margin-bottom:16px;
+}
+
+/*grid for showing other colors, when modifying a color*/
+#selected-color-grid{
+    margin-top:48px;
+    background-color:#fafafa;
+}
+
+/*controls*/
+#controls-container{
+    position:fixed;
+    top:80px;
+    left:32px;
+    padding:24px;
+    width:256px;
+    height:400px;
+    background-color:#fafafa;
+}
+
+.input-container{
+    margin-bottom:16px; 
 }
 
 .rgb-entry-form{
     display:inline-block;
     text-align:center;
-    margin: 0px 0px;
-}
-
-.rgb-input{
-    width:45px;
-    padding:2px;
-    padding-left:4px;
-    font-size:0.9em;
-    margin-left:3px;
     margin-right:8px;
 }
 
-#hex-container{
-    position:absolute;
-    left:24px;
-    top:72px;
+.rgb-input{
+    width:42px;
+    padding:2px;
+    padding-left:4px;
+    font-size:0.9em;
 }
 
-.hex-entry-form{
-    display:inline-block;
-    text-align:center;
-}
-
-.hex-input{
+.text-input{
     width:72px;
     padding:2px;
-    font-size:0.9em;
+    font-size:0.9em; 
+}
+
+#name-input{
+    width:200px;
+}
+
+#color-display-container{
+    margin:24px 0px;
+    width:256px;
+    height:96px;
+    text-align:center;
+    line-height:96px;
 }
 
 #color-display{
-    width:248px;
+    display:inline-block;
+    width:96px;
     height:96px;
-    position:absolute;
-    left:24px;
-    top:128px;
     background-color:#7f7f7f;
 }
 
-#add-color-cancel-button{
-    position:absolute;
-    top:256px;
-    left:24px;
-}
-
-#add-color-confirm-button{
-    position:absolute;
-    top:256px;
-    left:136px;
-}
-
-/*CHANGING COLOR*/
-#modify-color-modal{
-    position:fixed;
-    top:16px;
-    left:16px;
-    bottom:16px;
-    right:16px;
-    overflow:scroll;
-}
-
-#selected-color-grid{
-    position:absolute;
-    background-color:#fafafa;
-}
-
-#modify-controls-container{
-    background-color:#fafafa;
-    width:296px;
-    height:312px;
-    position:fixed;
-    top:96px;
-    left:32px;
-}
-
-#modify-color-label{
-    position:absolute;
-    top:44px;
-    left:104px;
-    width:80px;
-    height:48px;
-    text-align:center;
-    line-height:24px;
-    background-color:#fafafa;
+.increment-button{
+    height:32px;
+    width:69px;
     font-size:0.9em;
-}
-
-#modify-color-display{
-    position:absolute;
-    top:24px;
-    left:100px;
-    width:88px;
-    height:88px;
-}
-
-.modify-color-button{
-    width:1px;
-    height:1px;
-    border-top:44px solid transparent;
-    border-bottom:44px solid transparent;
-    background-color:transparent;
-    
-    position:absolute;
-    top:24px;
-    
-    font-size:0.9em;
-    line-height: 0px;
-    color:#1e1e1e;
+    margin-top:32px;
 }
 
 #darker-button{
-    border-right: 64px solid #c3c3c3;
-    left:24px;
-    text-indent: 15px;
-}
-
-#darker-button:focus{
-    left:20px;
-    top:20px;
-    outline:none;
-    border-top:48px solid transparent;
-    border-bottom:48px solid transparent;
-    border-right: 72px solid #c3c3c3;
-    border-left:none;
-    font-size:1.125em;
-    text-indent: 15px;
-    box-shadow: 2px 0px #1e1e1e;
-}
-
-#darker-button:active{
-    border-right: 72px solid #1e1e1e;
-    color:#c3c3c3;
+    float:left;
+    text-align:center;
+    padding:0px 4px 0px 0px;
 }
 
 #lighter-button{
-    border-left: 64px solid #c3c3c3;
-    left:200px;
-    text-indent: -74px;
+    float:right;
+    text-align:center;
+    padding:0px 0px 0px 4px;
 }
 
-#lighter-button:focus{
-    left:196px;
-    top:20px;
-    outline:none;
-    border-top:48px solid transparent;
-    border-bottom:48px solid transparent;
-    border-left: 72px solid #c3c3c3;
-    border-right:none;
-    font-size:1.125em;
-    text-indent: -82px;
-    box-shadow: -2px 0px #1e1e1e;
+#cancel-button{
+    float:left;
+    margin-bottom:36px;
+    width:96px;
+    height:32px;
+    text-align: center;
+    line-height:32px;
 }
 
-#lighter-button:active{
-    border-left: 72px solid #1e1e1e;
-    color:#c3c3c3;
-}
-
-#modify-color-cancel-button{
-    position:absolute;
-    top:144px;
-    left:24px;
-}
-
-#modify-color-confirm-button{
-    position:absolute;
-    top:144px;
-    left:136px;
+#confirm-button{
+    float:right;
+    margin-bottom:36px;
+    width:136px;
+    height:32px;
+    text-align: center;
+    line-height:32px;
 }
 
 #delete-color-button{
     width:240px;
-    position:absolute;
-    top:208px;
-    left:24px;
     text-align:center;
+    margin-bottom:24px;
 }
 
 #instructions{
-    position:absolute;
-    top:256px; 
-    left:24px;
-    right:24px;
     font-size:0.9em;
     background-color:transparent;
     color: #555555;
@@ -417,6 +340,16 @@ input[type="file"] { /*hack to treat the load button as an HTML file input but s
     margin:16px;
     overflow:scroll;
 }
+
+#add-color-button-cell{
+    padding:4px;
+}
+
+#add-color-button{
+    height:48px;
+    width:96px;
+}
+
 
 .top-label-td{
     padding:4px;
